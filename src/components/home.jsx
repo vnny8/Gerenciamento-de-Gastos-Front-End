@@ -10,15 +10,26 @@ function Home() {
   const [showModalCategoria, setShowModalCategoria] = useState(false);
   const [showModalSalario, setShowModalSalario] = useState(false);
   const [novaCategoria, setNovaCategoria] = useState({ nome: "", cor_categoria: "#000000" });
-  const [novoGasto, setNovoGasto] = useState({ categoria: "", valor: "", data: "" });
+  const [novoGasto, setNovoGasto] = useState({ categoria: "", valor: "", data: "", nome: "" });
   const [salarioMensal, setSalarioMensal] = useState(0);
   const [novoSalario, setNovoSalario] = useState("");
   const loginUsuario = localStorage.getItem("loginUsuario");
   const token = localStorage.getItem("token");
   const { enqueueSnackbar } = useSnackbar();
-
   const { authenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const gastos = [
+    { id: "1", categoria: "Alimentação", valor: 500, data: "2024-11-01" },
+    { id: "2", categoria: "Transporte", valor: 300, data: "2024-11-05" },
+    { id: "3", categoria: "Lazer", valor: 200, data: "2024-11-10" },
+  ];
+  const dinheiroRestante = salarioMensal - gastos.reduce((total, gasto) => total + gasto.valor, 0);
+  const handleCloseModalGasto = () => setShowModalGasto(false);
+  const handleOpenModalCategoria = () => setShowModalCategoria(true);
+  const handleCloseModalCategoria = () => setShowModalCategoria(false);
+  const handleOpenModalSalario = () => setShowModalSalario(true);
+  const handleCloseModalSalario = () => setShowModalSalario(false);
+  const [categorias, setCategorias] = useState([]);
 
   useEffect(() => {
       if (!authenticated) {
@@ -30,23 +41,6 @@ function Home() {
     logout();
     navigate('/');
   };
-
-  const gastos = [
-    { categoria: "Alimentação", valor: 500, data: "2024-11-01" },
-    { categoria: "Transporte", valor: 300, data: "2024-11-05" },
-    { categoria: "Lazer", valor: 200, data: "2024-11-10" },
-  ];
-
-  const dinheiroRestante = salarioMensal - gastos.reduce((total, gasto) => total + gasto.valor, 0);
-
-  const handleOpenModalGasto = () => setShowModalGasto(true);
-  const handleCloseModalGasto = () => setShowModalGasto(false);
-
-  const handleOpenModalCategoria = () => setShowModalCategoria(true);
-  const handleCloseModalCategoria = () => setShowModalCategoria(false);
-
-  const handleOpenModalSalario = () => setShowModalSalario(true);
-  const handleCloseModalSalario = () => setShowModalSalario(false);
 
   useEffect(() => {
     if (showModalGasto || showModalCategoria || showModalSalario) {
@@ -91,14 +85,58 @@ function Home() {
     setNovaCategoria({ nome: "", cor_categoria: "#000000" });
   };
 
-  const handleAddGasto = (e) => {
+  const fetchCategorias = async () => {
+    try {
+      const response = await fetch(`http://localhost:8080/categoria/listarPorUsuario?login=${loginUsuario}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setCategorias(data);
+      } else {
+        enqueueSnackbar("Erro ao buscar categorias!", { variant: "error" });
+      }
+    } catch (error) {
+      enqueueSnackbar("Erro no servidor ao buscar categorias.", { variant: "error" });
+    }
+  };
+  
+
+  const handleAddGasto = async (e) => {
     e.preventDefault();
-    console.log("Novo Gasto:", {
-      ...novoGasto,
+    const gastoRequest = {
       valor: parseFloat(novoGasto.valor.replace(/[^\d,-]/g, "").replace(",", ".").trim()),
-    });
+      idCategoria: novoGasto.categoria,
+      nome: novoGasto.nome,
+      loginUsuario: loginUsuario,
+    };
+    try {
+      // Fazer a requisição POST ao backend
+      const response = await fetch("http://localhost:8080/gasto/criar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Adiciona o token no cabeçalho
+        },
+        body: JSON.stringify(gastoRequest), // Converte o objeto para JSON
+      });
+  
+      // Verificar a resposta do backend
+      if (response.ok) {
+        enqueueSnackbar("Gasto salvo com sucesso!", { variant: "success" });
+      } else {
+        const errorData = await response.json();
+        enqueueSnackbar(`Erro ao criar gasto: ${errorData.message}`, { variant: "error" });
+      }
+    } catch (error) {
+      enqueueSnackbar(`Erro no servidor.`, { variant: "error" });
+    }
+    console.log("Novo gasto: ", gastoRequest)
     setShowModalGasto(false);
-    setNovoGasto({ categoria: "", valor: "", data: "" });
+    setNovoGasto({ categoria: "", valor: "", data: "", nome: "" });
   };
 
   const handleAddSalario = async (e) => {
@@ -134,6 +172,11 @@ function Home() {
     console.log("Novo Salário Mensal:", salario);
     setShowModalSalario(false);
     setNovoSalario("");
+  };
+
+  const handleOpenModalGasto = () => {
+    fetchCategorias(); // Buscar categorias antes de abrir o modal
+    setShowModalGasto(true);
   };
 
   const formatCurrencyOnInput = (value) => {
@@ -183,8 +226,9 @@ function Home() {
         </button>
         
         {/* Seletor de Mês */}
-        <label className="block mb-3 text-sm font-medium text-gray-600">Selecionar Mês</label>
+        <label htmlFor="selecionarMes" className="block mb-3 text-sm font-medium text-gray-600">Selecionar Mês</label>
         <select
+          id="selecionarMes"
           value={selectedMonth}
           onChange={(e) => setSelectedMonth(e.target.value)}
           className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#449E5C] focus:border-[#449E5C]"
@@ -200,9 +244,9 @@ function Home() {
         <div className="mt-6">
           <h4 className="text-lg font-semibold mb-4 text-gray-700">Lista de Gastos</h4>
           <ul className="space-y-3">
-            {gastos.map((gasto, index) => (
+            {gastos.map((gasto) => (
               <li
-                key={index}
+                key={gasto.id}
                 className="flex justify-between bg-gray-100 rounded-md p-3 shadow-sm"
               >
                 <span className="text-gray-700">{gasto.categoria}</span>
@@ -249,8 +293,9 @@ function Home() {
             <h3 className="text-lg font-semibold mb-4 text-gray-800">Criar Nova Categoria</h3>
             <form onSubmit={handleAddCategoria}>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-600">Nome da Categoria</label>
+                <label htmlFor="nomeCategoria" className="block text-sm font-medium text-gray-600">Nome da Categoria</label>
                 <input
+                  id="nomeCategoria"
                   type="text"
                   value={novaCategoria.nome}
                   onChange={(e) => setNovaCategoria({ ...novaCategoria, nome: e.target.value })}
@@ -259,13 +304,14 @@ function Home() {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-600">Cor da Categoria</label>
+                <label htmlFor="corCategoria" className="block text-sm font-medium text-gray-600">Cor da Categoria</label>
                 <div className="relative flex items-center">
-                  <div
+                  <button
+                    id="corCategoria"
                     className="w-10 h-10 rounded-md mr-2 cursor-pointer"
                     style={{ backgroundColor: novaCategoria.cor_categoria }}
                     onClick={() => document.getElementById("colorPicker").click()}
-                  ></div>
+                  ></button>
                   <input
                     id="colorPicker"
                     type="color"
@@ -299,18 +345,41 @@ function Home() {
             <h3 className="text-lg font-semibold mb-4 text-gray-800">Adicionar Novo Gasto</h3>
             <form onSubmit={handleAddGasto}>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-600">Categoria</label>
-                <input
-                  type="text"
+                <label htmlFor="selecionarCategoria" className="block text-sm font-medium text-gray-600">Categoria</label>
+                <select
+                  id="selecionarCategoria" 
                   value={novoGasto.categoria}
-                  onChange={(e) => setNovoGasto({ ...novoGasto, categoria: e.target.value })}
+                  onChange={(e) =>
+                    setNovoGasto({ ...novoGasto, categoria: parseInt(e.target.value) }) // Converte para inteiro
+                  }
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
+                  required
+                >
+                  <option value="" disabled>
+                    Selecione uma categoria
+                  </option>
+                  {categorias.map((categoria) => (
+                    <option key={categoria.categoriaId} value={categoria.categoriaId}>
+                      {categoria.nome}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="mb-4">
+                <label htmlFor="nomeDoGasto" className="block text-sm font-medium text-gray-600">Nome do Gasto</label>
+                <input
+                  id="nomeDoGasto"
+                  type="text"
+                  value={novoGasto.nome}
+                  onChange={(e) => setNovoGasto({ ...novoGasto, nome: e.target.value })}
                   className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
                   required
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-600">Valor</label>
+                <label htmlFor="valorDoGasto" className="block text-sm font-medium text-gray-600">Valor</label>
                 <input
+                  id="valorDoGasto"
                   type="text"
                   value={novoGasto.valor}
                   onChange={(e) => setNovoGasto({ ...novoGasto, valor: formatCurrencyOnInput(e.target.value) })}
@@ -319,8 +388,9 @@ function Home() {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-600">Data do Gasto</label>
+                <label htmlFor="dataDoGasto" className="block text-sm font-medium text-gray-600">Data do Gasto</label>
                 <input
+                  id="dataDoGasto"
                   type="date"
                   value={novoGasto.data}
                   onChange={(e) => setNovoGasto({ ...novoGasto, data: e.target.value })}
@@ -352,8 +422,9 @@ function Home() {
             <h3 className="text-lg font-semibold mb-4 text-gray-800">Cadastrar Salário</h3>
             <form onSubmit={handleAddSalario}>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-600">Salário Mensal</label>
+                <label htmlFor="salarioMensal" className="block text-sm font-medium text-gray-600">Salário Mensal</label>
                 <input
+                  id="salarioMensal"
                   type="text"
                   value={novoSalario}
                   onChange={(e) => setNovoSalario(formatCurrencyOnInput(e.target.value))}
