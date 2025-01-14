@@ -2,10 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from './AuthProvider';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import VirtualizedList from "./VirtualizedList";
 
 
 function Home() {
-  const [selectedMonth, setSelectedMonth] = useState("Janeiro");
   const [showModalGasto, setShowModalGasto] = useState(false);
   const [showModalCategoria, setShowModalCategoria] = useState(false);
   const [showModalSalario, setShowModalSalario] = useState(false);
@@ -18,18 +20,22 @@ function Home() {
   const { enqueueSnackbar } = useSnackbar();
   const { authenticated, logout } = useAuth();
   const navigate = useNavigate();
-  const gastos = [
-    { id: "1", categoria: "Alimentação", valor: 500, data: "2024-11-01" },
-    { id: "2", categoria: "Transporte", valor: 300, data: "2024-11-05" },
-    { id: "3", categoria: "Lazer", valor: 200, data: "2024-11-10" },
-  ];
-  const dinheiroRestante = salarioMensal - gastos.reduce((total, gasto) => total + gasto.valor, 0);
+  const [gastos, setGastos] = useState([]);
+  const [gastoDoMes, setGastoDoMes] = useState(0);
   const handleCloseModalGasto = () => setShowModalGasto(false);
   const handleOpenModalCategoria = () => setShowModalCategoria(true);
   const handleCloseModalCategoria = () => setShowModalCategoria(false);
   const handleOpenModalSalario = () => setShowModalSalario(true);
   const handleCloseModalSalario = () => setShowModalSalario(false);
   const [categorias, setCategorias] = useState([]);
+  const [mesAnoSelecionado, setMesAnoSelecionado] = useState(new Date());
+
+  // Converte para os formatos de mês e ano
+  const formattedMonth = mesAnoSelecionado.toLocaleString("pt-BR", { month: "long" });
+  const formattedYear = mesAnoSelecionado.getFullYear().toString();
+
+  // Atualiza o estado da data selecionada
+  const handleDateChange = (date) => setMesAnoSelecionado(date);
 
   useEffect(() => {
       if (!authenticated) {
@@ -112,6 +118,7 @@ function Home() {
       idCategoria: novoGasto.categoria,
       nome: novoGasto.nome,
       loginUsuario: loginUsuario,
+      dataCadastro: novoGasto.data ? `${novoGasto.data}T00:00:00` : null
     };
     try {
       // Fazer a requisição POST ao backend
@@ -127,9 +134,10 @@ function Home() {
       // Verificar a resposta do backend
       if (response.ok) {
         enqueueSnackbar("Gasto salvo com sucesso!", { variant: "success" });
+        handleSearchExpenses()
       } else {
-        const errorData = await response.json();
-        enqueueSnackbar(`Erro ao criar gasto: ${errorData.message}`, { variant: "error" });
+        //const errorData = await response.json()
+        enqueueSnackbar(`Erro ao criar gasto.`, { variant: "error" });
       }
     } catch (error) {
       enqueueSnackbar(`Erro no servidor.`, { variant: "error" });
@@ -161,6 +169,7 @@ function Home() {
       // Verificar a resposta do backend
       if (response.ok) {
         enqueueSnackbar("Salário salvo com sucesso!", { variant: "success" });
+        setSalarioMensal(salario)
       } else {
         const errorData = await response.json();
         enqueueSnackbar(`Erro ao salvar salário: ${errorData.message}`, { variant: "error" });
@@ -199,61 +208,69 @@ function Home() {
     });
   }
 
+  // Função para pesquisar gastos
+  const handleSearchExpenses = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/gasto/listarPorData?mes=${formattedMonth}&ano=${formattedYear}&login=${loginUsuario}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Token de autenticação
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Gastos recebidos:", data);
+        enqueueSnackbar("Gastos carregados com sucesso!", { variant: "success" });
+        // Atualizar estado com os gastos recebidos
+        setGastos(data.gastos);
+        setSalarioMensal(data.salarioDoMes)
+        setGastoDoMes(data.valorGastoNoMes)
+      } else {
+        const errorData = await response.json();
+        enqueueSnackbar(`Erro ao carregar gastos: ${errorData.message}`, { variant: "error" });
+      }
+    } catch (error) {
+      enqueueSnackbar(`Erro no servidor ao carregar gastos. ${error}`, { variant: "error" });
+    }
+  };
+
   return (
     <div className="flex flex-col lg:flex-row lg:min-h-screen bg-gray-50 p-5">
       {/* Sidebar */}
       <div className="w-full lg:w-1/4 p-6 lg:p-8 bg-white rounded-lg shadow-md mb-4 lg:mb-0 mr-2">
         <h3 className="text-xl font-semibold mb-4 text-gray-800">Gastos Mensais</h3>
         
-        {/* Botões */}
-        <button
-          onClick={handleOpenModalCategoria}
-          className="w-full mb-2 bg-blue-500 text-white font-semibold py-2 rounded-md hover:bg-blue-600 transition duration-200"
-        >
-          + Criar Categoria
-        </button>
-        <button
-          onClick={handleOpenModalGasto}
-          className="w-full mb-2 bg-[#449E5C] text-white font-semibold py-2 rounded-md hover:bg-[#388E4B] transition duration-200"
-        >
-          + Adicionar Novo Gasto
-        </button>
-        <button
-          onClick={handleOpenModalSalario}
-          className="w-full mb-4 bg-yellow-500 text-white font-semibold py-2 rounded-md hover:bg-yellow-600 transition duration-200"
-        >
-          + Atualizar Salário do mês
-        </button>
-        
-        {/* Seletor de Mês */}
-        <label htmlFor="selecionarMes" className="block mb-3 text-sm font-medium text-gray-600">Selecionar Mês</label>
-        <select
-          id="selecionarMes"
-          value={selectedMonth}
-          onChange={(e) => setSelectedMonth(e.target.value)}
+        {/* Seletor de Mês e Ano */}
+        <label htmlFor="selecionarMesAno" className="block mb-3 text-sm font-medium text-gray-600">
+          Selecionar Mês e Ano
+        </label>
+        <DatePicker
+          id="selecionarMesAno"
+          selected={mesAnoSelecionado}
+          onChange={handleDateChange} // Atualiza o estado ao selecionar
+          dateFormat="MM/yyyy" // Exibe como "Mês/Ano"
+          showMonthYearPicker // Mostra apenas o seletor de mês e ano
           className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#449E5C] focus:border-[#449E5C]"
-        >
-          <option>Janeiro</option>
-          <option>Fevereiro</option>
-          <option>Março</option>
-          <option>Abril</option>
-          <option>Maio</option>
-        </select>
+        />
 
-        {/* Lista de Gastos */}
-        <div className="mt-6">
+        {/* Botão Pesquisar Gastos */}
+        <button
+          onClick={handleSearchExpenses}
+          className="w-full mt-3 bg-blue-500 text-white font-semibold py-2 rounded-md hover:bg-blue-600 transition duration-200"
+        >
+          Pesquisar Gastos
+        </button>
+
+        <div className="mt-5">
           <h4 className="text-lg font-semibold mb-4 text-gray-700">Lista de Gastos</h4>
-          <ul className="space-y-3">
-            {gastos.map((gasto) => (
-              <li
-                key={gasto.id}
-                className="flex justify-between bg-gray-100 rounded-md p-3 shadow-sm"
-              >
-                <span className="text-gray-700">{gasto.categoria}</span>
-                <span className="font-semibold text-[#449E5C]">R$ {gasto.valor.toFixed(2)}</span>
-              </li>
-            ))}
-          </ul>
+          <div className="h-50 bg-white rounded-lg shadow-md overflow-hidden">
+            <VirtualizedList items={gastos} />
+          </div>
         </div>
 
         {/* Botão de Logout */}
@@ -274,9 +291,34 @@ function Home() {
           </div>
           <div className="bg-red-100 text-red-800 font-semibold text-center p-4 rounded-lg shadow-sm">
             <h3 className="text-lg">Dinheiro Restante</h3>
-            <p className="text-xl">{formatarParaReais(dinheiroRestante)}</p>
+            <p className="text-xl">{formatarParaReais(salarioMensal - gastoDoMes)}</p>
           </div>
         </div>
+
+        {/* Botões */}
+        <div className="flex flex-col lg:flex-row lg:space-x-4 mb-5">
+          <button
+            onClick={handleOpenModalCategoria}
+            className="w-full lg:w-full mb-2 lg:mb-0 bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
+          >
+            + Criar Categoria
+          </button>
+          <button
+            onClick={handleOpenModalGasto}
+            className="w-full lg:w-full mb-2 lg:mb-0 bg-[#449E5C] text-white font-semibold py-2 px-4 rounded-md hover:bg-[#388E4B] transition duration-200"
+          >
+            + Adicionar Novo Gasto
+          </button>
+          <button
+            onClick={handleOpenModalSalario}
+            className="w-full lg:w-full mb-4 lg:mb-0 bg-yellow-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-yellow-600 transition duration-200"
+          >
+            + Atualizar Salário do mês
+          </button>
+        </div>
+
+
+         {/* Gráfico */}
         <h2 className="text-2xl font-bold mb-4 text-gray-800">Resumo de Gastos</h2>
         <div className="flex items-center justify-center">
           <div className="w-full h-48 lg:h-64 bg-gray-100 rounded-lg flex items-center justify-center">
