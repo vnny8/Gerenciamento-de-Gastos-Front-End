@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Example from './components/Login';
-import Home from './components/home';
+import Home from './components/Home';
 import { AuthProvider } from './components/AuthProvider';  // Certifique-se de importar o AuthProvider corretamente
 import ProtectedRoute from './components/ProtectedRoute';
 import { SnackbarProvider } from 'notistack';
