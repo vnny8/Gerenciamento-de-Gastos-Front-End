@@ -8,7 +8,8 @@ function FormCategoria({
   onCancel, 
   categorias = [], 
   isEditing = false, 
-  onSelectCategoria 
+  onSelectCategoria,
+  onDelete
 }) {
   return (
     <form onSubmit={handleSubmit}>
@@ -67,6 +68,15 @@ function FormCategoria({
         </div>
       </div>
       <div className="flex justify-end">
+        {isEditing && (
+          <button
+            type="button"
+            onClick={onDelete}
+            className="mr-2 bg-red-500 text-white px-4 py-2 rounded-md"
+          >
+            Excluir
+          </button>
+        )}
         <button
           type="button"
           onClick={onCancel}

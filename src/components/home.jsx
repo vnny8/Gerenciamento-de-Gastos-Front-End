@@ -16,6 +16,7 @@ import {
   BarElement,
 } from "chart.js";
 import FormCategoria from "./FormCategoria";
+import FormNovoGasto from "./FormNovoGasto";
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
@@ -24,7 +25,7 @@ function Home() {
   const [showModalCategoria, setShowModalCategoria] = useState(false);
   const [showModalSalario, setShowModalSalario] = useState(false);
   const [novaCategoria, setNovaCategoria] = useState({ "id": undefined, nome: "", cor_categoria: "#000000" });
-  const [novoGasto, setNovoGasto] = useState({ categoria: "", valor: "", data: "", nome: "" });
+  const [novoGasto, setNovoGasto] = useState({ id: "", idCategoria: "", categoria: "", valor: "", data: "", nome: "" });
   const [salarioMensal, setSalarioMensal] = useState(0);
   const [novoSalario, setNovoSalario] = useState("");
   const loginUsuario = localStorage.getItem("loginUsuario");
@@ -33,8 +34,8 @@ function Home() {
   const { authenticated, logout } = useAuth();
   const navigate = useNavigate();
   const [gastos, setGastos] = useState([]);
+  const [gastosEditar, setGastosEditar] = useState([]);
   const [gastoDoMes, setGastoDoMes] = useState(0);
-  const handleCloseModalGasto = () => setShowModalGasto(false);
   const handleOpenModalCategoria = () => setShowModalCategoria(true);
   const handleOpenModalSalario = () => setShowModalSalario(true);
   const handleCloseModalSalario = () => setShowModalSalario(false);
@@ -50,9 +51,15 @@ function Home() {
   // Atualiza o estado da data selecionada
   const handleDateChange = (date) => setMesAnoSelecionado(date);
 
+  const handleCloseModalGasto = () => {
+    setShowModalGasto(false);
+    setModalStep("create");
+    setNovoGasto({ id: "", idCategoria: "", categoria: "", valor: "", data: "", nome: "" });
+  };
   const handleCloseModalCategoria = () => {
     setShowModalCategoria(false); // Fecha o modal
-    setNovaCategoria({ "id": undefined, nome: "", cor_categoria: "#000000" }); // Reseta os campos do formulário
+    setNovaCategoria({ "id": undefined, nome: "", cor_categoria: "#000000" });
+    setModalStep("create");
   };
   
 
@@ -144,7 +151,8 @@ function Home() {
       // Verificar a resposta do backend
       if (response.ok) {
         enqueueSnackbar("Categoria editada com sucesso!", { variant: "success" });
-        handleSearchExpenses()
+        handleSearchExpenses();
+        handleCloseModalCategoria();
       } else if (response.status === 401) {
         tokenExpirou();
       } else {
@@ -181,13 +189,34 @@ function Home() {
       enqueueSnackbar("Erro no servidor ao buscar categorias.", { variant: "error" });
     }
   };
+
+  const fetchTodosGastos = async () => {
+    try {
+      const response = await fetch(`http://localhost:8080/gasto/listar?login=${loginUsuario}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setGastosEditar(data);
+      } else if (response.status === 401){
+        tokenExpirou()
+      } else {
+        enqueueSnackbar("Erro ao buscar categorias!", { variant: "error" });
+      }
+    } catch (error) {
+      enqueueSnackbar("Erro no servidor ao buscar categorias.", { variant: "error" });
+    }
+  };
   
 
   const handleAddGasto = async (e) => {
     e.preventDefault();
     const gastoRequest = {
       valor: parseFloat(novoGasto.valor.replace(/[^\d,-]/g, "").replace(",", ".").trim()),
-      idCategoria: novoGasto.categoria,
+      idCategoria: novoGasto.idCategoria,
       nome: novoGasto.nome,
       loginUsuario: loginUsuario,
       dataCadastro: novoGasto.data ? `${novoGasto.data}T00:00:00` : null
@@ -218,7 +247,7 @@ function Home() {
     }
     console.log("Novo gasto: ", gastoRequest)
     setShowModalGasto(false);
-    setNovoGasto({ categoria: "", valor: "", data: "", nome: "" });
+    setNovoGasto({ id: "", idCategoria: "", categoria: "", valor: "", data: "", nome: "" });
   };
 
   const handleAddSalario = async (e) => {
@@ -261,6 +290,58 @@ function Home() {
     setNovoSalario("");
   };
 
+  const handleEditGasto = async (e) => {
+    e.preventDefault();
+    console.log("NovoGasto para editar está assim: ", novoGasto)
+    try {
+      const response = await fetch(`http://localhost:8080/gasto/editar`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(novoGasto),
+      });
+  
+      if (response.ok) {
+        enqueueSnackbar("Gasto editado com sucesso!", { variant: "success" });
+        handleSearchExpenses(); // Atualiza os gastos
+        handleCloseModalGasto();
+      } else {
+        enqueueSnackbar("Erro ao editar gasto.", { variant: "error" });
+      }
+    } catch (error) {
+      enqueueSnackbar("Erro no servidor ao editar gasto.", { variant: "error" });
+    }
+  };
+  
+  const handleDeleteGasto = async () => {
+    if (!novoGasto.id) {
+      enqueueSnackbar("Nenhum gasto selecionado para exclusão.", { variant: "error" });
+      return;
+    }
+  
+    try {
+      const response = await fetch(`http://localhost:8080/gasto/deletar?id=${novoGasto.id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (response.ok) {
+        enqueueSnackbar("Gasto excluído com sucesso!", { variant: "success" });
+        handleSearchExpenses(); // Atualiza os gastos
+        handleCloseModalGasto();
+      } else {
+        enqueueSnackbar("Erro ao excluir gasto.", { variant: "error" });
+      }
+    } catch (error) {
+      enqueueSnackbar("Erro no servidor ao excluir gasto.", { variant: "error" });
+    }
+  };
+  
+
   const handleOpenModalGasto = () => {
     fetchCategorias(); // Buscar categorias antes de abrir o modal
     setShowModalGasto(true);
@@ -296,6 +377,57 @@ function Home() {
       });
     }
   };
+
+  const handleSelectNovoGasto = (gastoId) => {
+    const gastoSelecionado = gastosEditar.find(gasto => gasto.id === parseInt(gastoId));
+    console.log("Fez aqui1: ", gastoSelecionado)
+    console.log("Id: ", gastoId)
+    console.log("GastosEditar", gastosEditar)
+    if (gastoSelecionado) {
+      console.log("Fez aqui: ", gastoSelecionado)
+      const dataFormatada = gastoSelecionado.dataCadastro
+      ? new Date(gastoSelecionado.dataCadastro).toISOString().split("T")[0]
+      : "";
+      setNovoGasto({
+        id: gastoSelecionado.id,
+        valor: gastoSelecionado.valor,
+        idCategoria: gastoSelecionado.idCategoria,
+        nome: gastoSelecionado.nome,
+        cor_categoria: gastoSelecionado.cor_categoria,
+        data: dataFormatada
+      });
+    }
+  };
+
+  const handleDeleteCategoria = async () => {
+    if (!novaCategoria.id) {
+      enqueueSnackbar("Nenhuma categoria selecionada para exclusão.", { variant: "error" });
+      return;
+    }
+  
+    try {
+      const response = await fetch(`http://localhost:8080/categoria/deletar?id=${novaCategoria.id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`, // Adiciona o token no cabeçalho
+        },
+      });
+  
+      if (response.ok) {
+        enqueueSnackbar("Categoria excluída com sucesso!", { variant: "success" });
+        fetchCategorias(); // Atualiza a lista de categorias após a exclusão
+        handleCloseModalCategoria();
+      } else if (response.status === 401) {
+        tokenExpirou();
+      } else {
+        const errorData = await response.json();
+        enqueueSnackbar(`Erro ao excluir categoria: ${errorData.message}`, { variant: "error" });
+      }
+    } catch (error) {
+      enqueueSnackbar("Erro no servidor ao excluir categoria.", { variant: "error" });
+    }
+  };
+  
   
 
   // Função para pesquisar gastos
@@ -399,7 +531,7 @@ function Home() {
             onClick={handleOpenModalGasto}
             className="w-full lg:w-full mb-2 lg:mb-0 bg-[#449E5C] text-white font-semibold py-2 px-4 rounded-md hover:bg-[#388E4B] transition duration-200"
           >
-            + Adicionar Novo Gasto
+            + Gerenciar um Gasto
           </button>
           <button
             onClick={handleOpenModalSalario}
@@ -454,7 +586,10 @@ function Home() {
             {/* Stepper */}
             <div className="flex justify-around mb-6 border-b pb-3">
               <button
-                onClick={() => setModalStep("create")}
+                onClick={() => {
+                  setModalStep("create");
+                  setNovaCategoria({ "id": undefined, nome: "", cor_categoria: "#000000" });
+                }}
                 className={`px-4 py-2 font-semibold rounded-md ${
                   modalStep === "create" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"
                 }`}
@@ -465,6 +600,7 @@ function Home() {
                 onClick={() => {
                   fetchCategorias(); // Chama a função que carrega as categorias
                   setModalStep("edit"); // Define o modal para o passo "Editar"
+                  setNovaCategoria({ "id": undefined, nome: "", cor_categoria: "#000000" });
                 }}
                 className={`px-4 py-2 font-semibold rounded-md ${
                   modalStep === "edit" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"
@@ -473,7 +609,6 @@ function Home() {
                 Editar
               </button>
             </div>
-
             <FormCategoria
               categoria={novaCategoria}
               setCategoria={setNovaCategoria}
@@ -483,86 +618,53 @@ function Home() {
               categorias={categorias}
               isEditing={modalStep === "edit"}
               onSelectCategoria={handleSelectCategoria}
+              onDelete={handleDeleteCategoria} // Passa a função para exclusão
             />
-
           </div>
         </div>
       )}
 
-
-      {/* Modal Gasto */}
       {showModalGasto && (
         <div className="fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white w-full max-w-md mx-4 p-6 rounded-lg shadow-lg">
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">Adicionar Novo Gasto</h3>
-            <form onSubmit={handleAddGasto}>
-              <div className="mb-4">
-                <label htmlFor="selecionarCategoria" className="block text-sm font-medium text-gray-600">Categoria</label>
-                <select
-                  id="selecionarCategoria" 
-                  value={novoGasto.categoria}
-                  onChange={(e) =>
-                    setNovoGasto({ ...novoGasto, categoria: parseInt(e.target.value) }) // Converte para inteiro
-                  }
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
-                  required
-                >
-                  <option value="" disabled>
-                    Selecione uma categoria
-                  </option>
-                  {categorias.map((categoria) => (
-                    <option key={categoria.categoriaId} value={categoria.categoriaId}>
-                      {categoria.nome}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="mb-4">
-                <label htmlFor="nomeDoGasto" className="block text-sm font-medium text-gray-600">Nome do Gasto</label>
-                <input
-                  id="nomeDoGasto"
-                  type="text"
-                  value={novoGasto.nome}
-                  onChange={(e) => setNovoGasto({ ...novoGasto, nome: e.target.value })}
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="valorDoGasto" className="block text-sm font-medium text-gray-600">Valor</label>
-                <input
-                  id="valorDoGasto"
-                  type="text"
-                  value={novoGasto.valor}
-                  onChange={(e) => setNovoGasto({ ...novoGasto, valor: formatCurrencyOnInput(e.target.value) })}
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="dataDoGasto" className="block text-sm font-medium text-gray-600">Data do Gasto</label>
-                <input
-                  id="dataDoGasto"
-                  type="date"
-                  value={novoGasto.data}
-                  onChange={(e) => setNovoGasto({ ...novoGasto, data: e.target.value })}
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
-                  required
-                />
-              </div>
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={handleCloseModalGasto}
-                  className="mr-2 bg-gray-200 text-gray-800 px-4 py-2 rounded-md"
-                >
-                  Cancelar
-                </button>
-                <button type="submit" className="bg-[#449E5C] text-white px-4 py-2 rounded-md">
-                  Adicionar
-                </button>
-              </div>
-            </form>
+          <div className="flex justify-around mb-6 border-b pb-3">
+              <button
+                onClick={() => {
+                  setModalStep("create")
+                  setNovoGasto({ id: "", idCategoria: "", categoria: "", valor: "", data: "", nome: "" });
+                }}
+                className={`px-4 py-2 font-semibold rounded-md ${
+                  modalStep === "create" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"
+                }`}
+              >
+                Criar
+              </button>
+              <button
+                onClick={() => {
+                  fetchCategorias(); // Chama a função que carrega as categorias
+                  fetchTodosGastos(); // Chama a função que carrega os gastos
+                  setModalStep("edit"); // Define o modal para o passo "Editar"
+                  setNovoGasto({ id: "", idCategoria: "", categoria: "", valor: "", data: "", nome: "" }); // Reseta variável
+                }}
+                className={`px-4 py-2 font-semibold rounded-md ${
+                  modalStep === "edit" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"
+                }`}
+              >
+                Editar
+              </button>
+            </div>
+            <FormNovoGasto
+              gasto={novoGasto}
+              setGasto={setNovoGasto}
+              handleSubmit={modalStep === "create" ? handleAddGasto : handleEditGasto}
+              buttonText={modalStep === "create" ? "Adicionar" : "Salvar"}
+              onCancel={handleCloseModalGasto}
+              categorias={categorias}
+              gastos={gastosEditar}
+              onSelectGasto={handleSelectNovoGasto}
+              isEditing={modalStep === "edit"}
+              onDelete={handleDeleteGasto}
+            />
           </div>
         </div>
       )}
