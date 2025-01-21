@@ -1,15 +1,27 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
 
 const ProtectedRoute = ({ children }) => {
-    const { authenticated } = useAuth();
+    const { authenticated, login } = useAuth();
+    const location = useLocation();
 
-    // Se não estiver autenticado, redireciona para a página de login
+    // Verifica se há um token na URL
+    const params = new URLSearchParams(location.search);
+    console.log(params)
+    const token = params.get("token");
+    const email = params.get("email");
+
+    if (token) {
+        // Autentica o usuário com o token
+        login(token, 'Google', email); // Método do AuthProvider
+        return children; // Permite acessar a rota protegida
+    }
+
+    // Se não autenticado e sem token, redireciona para login
     if (!authenticated) {
         return <Navigate to="/" />;
     }
 
-    // Se autenticado, renderiza o componente filho (children)
     return children;
 };
 

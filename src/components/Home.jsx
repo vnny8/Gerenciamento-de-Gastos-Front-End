@@ -31,7 +31,7 @@ function Home() {
   const loginUsuario = localStorage.getItem("loginUsuario");
   const token = localStorage.getItem("token");
   const { enqueueSnackbar } = useSnackbar();
-  const { authenticated, logout } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
   const [gastos, setGastos] = useState([]);
   const [gastosEditar, setGastosEditar] = useState([]);
@@ -61,13 +61,6 @@ function Home() {
     setNovaCategoria({ "id": undefined, nome: "", cor_categoria: "#000000" });
     setModalStep("create");
   };
-  
-
-  useEffect(() => {
-      if (!authenticated) {
-          navigate('/');  // Redireciona para login se não estiver autenticado
-      }
-  }, [authenticated, navigate]);
 
   const handleLogout = () => {
     logout();

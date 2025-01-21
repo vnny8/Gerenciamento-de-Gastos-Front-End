@@ -8,9 +8,13 @@ export const AuthProvider = ({ children }) => {
     const [authenticated, setAuthenticated] = useState(!!localStorage.getItem('token'));
 
     // Função para realizar login
-    const login = (token) => {
+    const login = (token, tipoDeLogin, email) => {
         setAuthenticated(true);
         localStorage.setItem('token', token);  // Salva o token
+        if (tipoDeLogin === 'Google'){
+            localStorage.setItem("loginUsuario", email);
+        }
+        console.log("Email: ", email)
     };
 
     // Função para logout

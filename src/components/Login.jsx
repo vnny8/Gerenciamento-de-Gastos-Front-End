@@ -42,6 +42,10 @@ export default function Example() {
         }
     };
 
+    const handleLoginGoogle = () => {
+        window.location.href = "http://localhost:8080/oauth2/authorization/google";
+    };
+
     return (
         <div className="flex items-center justify-center min-h-screen bg-white-50">
             <div className="max-w-7xl px-6 lg:px-8">
@@ -107,6 +111,15 @@ export default function Example() {
                                     </button>
                                 </div>
                             </form>
+                            <div className="mt-6">
+                                <button
+                                    type="button"
+                                    onClick={handleLoginGoogle}
+                                    className="flex w-full justify-center rounded-md bg-blue-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                                >
+                                    Logar com Google
+                                </button>
+                            </div>
                             <p className="mt-10 text-center text-sm text-gray-500">
                                 Não possui conta?{' '}
                                 <button className="font-semibold leading-6 text-[#449E5C] hover:text-[#449E5C]">
