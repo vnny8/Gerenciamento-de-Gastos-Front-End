@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
 import { useSnackbar } from 'notistack';
 import { FcGoogle } from 'react-icons/fc';
+import requisicaoAPI from '../api';
 
 
 export default function Example() {
@@ -23,7 +24,7 @@ export default function Example() {
 
     const fazerLogin = async () => {
         try {
-            const response = await fetch("http://localhost:8080/authenticate", {
+            const response = await fetch(`${requisicaoAPI}/authenticate`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -44,7 +45,7 @@ export default function Example() {
     };
 
     const handleLoginGoogle = () => {
-        window.location.href = "http://localhost:8080/oauth2/authorization/google";
+        window.location.href = `${requisicaoAPI}/oauth2/authorization/google`;
     };
 
     return (

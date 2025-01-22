@@ -17,6 +17,7 @@ import {
 } from "chart.js";
 import FormCategoria from "./FormCategoria";
 import FormNovoGasto from "./FormNovoGasto";
+import requisicaoAPI from "../api";
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
@@ -93,7 +94,7 @@ function Home() {
 
     try {
       // Fazer a requisição POST ao backend
-      const response = await fetch("http://localhost:8080/categoria/criar", {
+      const response = await fetch(`${requisicaoAPI}/categoria/criar`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -132,7 +133,7 @@ function Home() {
   
     try {
       // Fazer a requisição PUT ao backend
-      const response = await fetch("http://localhost:8080/categoria/editar", {
+      const response = await fetch(`${requisicaoAPI}/categoria/editar`, {
         method: "PUT", // Muda para PUT
         headers: {
           "Content-Type": "application/json",
@@ -164,7 +165,7 @@ function Home() {
 
   const fetchCategorias = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/categoria/listarPorUsuario?login=${loginUsuario}`, {
+      const response = await fetch(`${requisicaoAPI}/categoria/listarPorUsuario?login=${loginUsuario}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -185,7 +186,7 @@ function Home() {
 
   const fetchTodosGastos = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/gasto/listar?login=${loginUsuario}`, {
+      const response = await fetch(`${requisicaoAPI}/gasto/listar?login=${loginUsuario}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -216,7 +217,7 @@ function Home() {
     };
     try {
       // Fazer a requisição POST ao backend
-      const response = await fetch("http://localhost:8080/gasto/criar", {
+      const response = await fetch(`${requisicaoAPI}/gasto/criar`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -255,7 +256,7 @@ function Home() {
     };
     try {
       // Fazer a requisição POST ao backend
-      const response = await fetch("http://localhost:8080/salario/criar", {
+      const response = await fetch(`${requisicaoAPI}/salario/criar`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -287,7 +288,7 @@ function Home() {
     e.preventDefault();
     console.log("NovoGasto para editar está assim: ", novoGasto)
     try {
-      const response = await fetch(`http://localhost:8080/gasto/editar`, {
+      const response = await fetch(`${requisicaoAPI}/gasto/editar`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -315,7 +316,7 @@ function Home() {
     }
   
     try {
-      const response = await fetch(`http://localhost:8080/gasto/deletar?id=${novoGasto.id}`, {
+      const response = await fetch(`${requisicaoAPI}/gasto/deletar?id=${novoGasto.id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -399,7 +400,7 @@ function Home() {
     }
   
     try {
-      const response = await fetch(`http://localhost:8080/categoria/deletar?id=${novaCategoria.id}`, {
+      const response = await fetch(`${requisicaoAPI}/categoria/deletar?id=${novaCategoria.id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`, // Adiciona o token no cabeçalho
@@ -427,7 +428,7 @@ function Home() {
   const handleSearchExpenses = async () => {
     try {
       const response = await fetch(
-        `http://localhost:8080/gasto/listarPorData?mes=${formattedMonth}&ano=${formattedYear}&login=${loginUsuario}`,
+        `${requisicaoAPI}/gasto/listarPorData?mes=${formattedMonth}&ano=${formattedYear}&login=${loginUsuario}`,
         {
           method: "GET",
           headers: {
