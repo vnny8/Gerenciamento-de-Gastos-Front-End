@@ -29,7 +29,7 @@ function Home() {
   const [novoGasto, setNovoGasto] = useState({ id: "", idCategoria: "", categoria: "", valor: "", data: "", nome: "" });
   const [salarioMensal, setSalarioMensal] = useState(0);
   const [novoSalario, setNovoSalario] = useState("");
-  const loginUsuario = localStorage.getItem("loginUsuario");
+  const emailUsuario = localStorage.getItem("emailUsuario");
   const token = localStorage.getItem("token");
   const { enqueueSnackbar } = useSnackbar();
   const { logout } = useAuth();
@@ -89,7 +89,7 @@ function Home() {
     const categoriaRequest = {
       nome: novaCategoria.nome,
       cor_categoria: novaCategoria.cor_categoria,
-      loginUsuario: loginUsuario,
+      emailUsuario: emailUsuario,
     };
 
     try {
@@ -128,7 +128,7 @@ function Home() {
       id: novaCategoria.id,
       nome: novaCategoria.nome,
       cor_categoria: novaCategoria.cor_categoria,
-      loginUsuario: loginUsuario,
+      emailUsuario: emailUsuario,
     };
   
     try {
@@ -165,7 +165,7 @@ function Home() {
 
   const fetchCategorias = async () => {
     try {
-      const response = await fetch(`${requisicaoAPI}/categoria/listarPorUsuario?login=${loginUsuario}`, {
+      const response = await fetch(`${requisicaoAPI}/categoria/listarPorUsuario?email=${emailUsuario}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -186,7 +186,7 @@ function Home() {
 
   const fetchTodosGastos = async () => {
     try {
-      const response = await fetch(`${requisicaoAPI}/gasto/listar?login=${loginUsuario}`, {
+      const response = await fetch(`${requisicaoAPI}/gasto/listar?email=${emailUsuario}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -212,7 +212,7 @@ function Home() {
       valor: parseFloat(novoGasto.valor.replace(/[^\d,-]/g, "").replace(",", ".").trim()),
       idCategoria: novoGasto.idCategoria,
       nome: novoGasto.nome,
-      loginUsuario: loginUsuario,
+      emailUsuario: emailUsuario,
       dataCadastro: novoGasto.data ? `${novoGasto.data}T00:00:00` : null
     };
     try {
@@ -250,7 +250,7 @@ function Home() {
     setSalarioMensal(salario);
     const salarioRequest = {
       valor: salario,
-      loginUsuario: loginUsuario,
+      emailUsuario: emailUsuario,
       mes: formattedMonth,
       ano: formattedYear
     };
@@ -287,6 +287,9 @@ function Home() {
   const handleEditGasto = async (e) => {
     e.preventDefault();
     console.log("NovoGasto para editar está assim: ", novoGasto)
+    novoGasto.data = novoGasto.data ? `${novoGasto.data}T00:00:00` : null
+    console.log(novoGasto.data)
+    console.log(novoGasto.data ? `${novoGasto.data}T00:00:00` : null)
     try {
       const response = await fetch(`${requisicaoAPI}/gasto/editar`, {
         method: "PUT",
@@ -413,9 +416,10 @@ function Home() {
         handleCloseModalCategoria();
       } else if (response.status === 401) {
         tokenExpirou();
+      } else if (response.status === 409){
+        enqueueSnackbar(`Esta categoria não pode ser excluída pois ainda possui gastos relacionados à ela.`, { variant: "error" });
       } else {
-        const errorData = await response.json();
-        enqueueSnackbar(`Erro ao excluir categoria: ${errorData.message}`, { variant: "error" });
+        enqueueSnackbar(`Erro ao excluir categoria`, { variant: "error" });
       }
     } catch (error) {
       enqueueSnackbar("Erro no servidor ao excluir categoria.", { variant: "error" });
@@ -428,7 +432,7 @@ function Home() {
   const handleSearchExpenses = async () => {
     try {
       const response = await fetch(
-        `${requisicaoAPI}/gasto/listarPorData?mes=${formattedMonth}&ano=${formattedYear}&login=${loginUsuario}`,
+        `${requisicaoAPI}/gasto/listarPorData?mes=${formattedMonth}&ano=${formattedYear}&email=${emailUsuario}`,
         {
           method: "GET",
           headers: {

@@ -36,7 +36,7 @@ export default function Example() {
             }
             const data = await response.text();
             console.log("Login bem-sucedido:", data);
-            localStorage.setItem("loginUsuario", login);
+            localStorage.setItem("emailUsuario", login);
             authLogin(data);
             navigate('/home');
         } catch (error) {
@@ -75,7 +75,7 @@ export default function Example() {
                             <form onSubmit={(event) => { event.preventDefault(); fazerLogin(); }}>
                                 <div>
                                     <label htmlFor="text" className="block text-sm font-medium leading-6 text-gray-900">
-                                        Login
+                                        E-mail
                                     </label>
                                     <div className="mt-1">
                                         <input

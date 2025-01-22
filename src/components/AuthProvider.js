@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
         setAuthenticated(true);
         localStorage.setItem('token', token);  // Salva o token
         if (tipoDeLogin === 'Google'){
-            localStorage.setItem("loginUsuario", email);
+            localStorage.setItem("emailUsuario", email);
         }
         console.log("Email: ", email)
     };
