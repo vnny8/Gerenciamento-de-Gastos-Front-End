@@ -3,6 +3,7 @@ import Imagem from './Imagem';
 import { useNavigate } from 'react-router-dom'; 
 import { useAuth } from './AuthProvider';
 import { useSnackbar } from 'notistack';
+import { FcGoogle } from 'react-icons/fc';
 
 
 export default function Example() {
@@ -53,12 +54,23 @@ export default function Example() {
                 <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-2">
                     <Imagem />
                     <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-                        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+                        <div className="items-center sm:mx-auto sm:w-full sm:max-w-sm">
                             <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
                                 Faça login em sua conta
                             </h2>
+                            <div className="mt-6 flex justify-center">
+                                <button
+                                    type="button"
+                                    onClick={handleLoginGoogle}
+                                    className="flex w-80 items-center justify-center space-x-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-600 shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                >
+                                    <FcGoogle className="h-5 w-5" />
+                                    <span><b>Logar com Google</b></span>
+                                </button>
+                            </div>
                         </div>
                         <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-sm">
+                        
                             <form onSubmit={(event) => { event.preventDefault(); fazerLogin(); }}>
                                 <div>
                                     <label htmlFor="text" className="block text-sm font-medium leading-6 text-gray-900">
@@ -111,16 +123,8 @@ export default function Example() {
                                     </button>
                                 </div>
                             </form>
-                            <div className="mt-6">
-                                <button
-                                    type="button"
-                                    onClick={handleLoginGoogle}
-                                    className="flex w-full justify-center rounded-md bg-blue-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
-                                >
-                                    Logar com Google
-                                </button>
-                            </div>
-                            <p className="mt-10 text-center text-sm text-gray-500">
+                        
+                            <p className="mt-6 text-center text-sm text-gray-500">
                                 Não possui conta?{' '}
                                 <button className="font-semibold leading-6 text-[#449E5C] hover:text-[#449E5C]">
                                     Registre-se
