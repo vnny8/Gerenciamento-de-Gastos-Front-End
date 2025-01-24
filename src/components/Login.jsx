@@ -13,19 +13,17 @@ export default function Example() {
     const [nome, setNome] = useState("");
     const [confirmarSenha, setConfirmarSenha] = useState("");
     const [isRegister, setIsRegister] = useState(false); // Controla o estado entre login e registro
+    const [criandoConta, setCriandoConta] = useState(false);
     const navigate = useNavigate();
     const { enqueueSnackbar } = useSnackbar();
+    const [codigoConfirmacao, setCodigoConfirmacao] = useState("");
+    const handleCodigoConfirmacao = (event) => setCodigoConfirmacao(event.target.value);
 
     const handleLogin = (event) => setLogin(event.target.value);
     const handleSenha = (event) => setSenha(event.target.value);
     const handleNome = (event) => setNome(event.target.value);
     const handleConfirmarSenha = (event) => setConfirmarSenha(event.target.value);
-
-    // Validações individuais
-    const temLetraMaiuscula = /[A-Z]/.test(senha);
-    const temNumero = /\d/.test(senha);
-    const temCaractereEspecial = /[\W_]/.test(senha);
-    const tamanhoMinimo = senha.length >= 8;
+    const [showModal, setShowModal] = useState(false); 
 
     const fazerLogin = async () => {
         try {
@@ -36,8 +34,12 @@ export default function Example() {
                     "Authorization": "Basic " + btoa(`${login}:${senha}`),
                 },
             });
-            if (!response.ok) {
-                throw new Error("Erro ao autenticar");
+            if (response.status === 403){
+                enqueueSnackbar(`Essa conta encontra-se inativa, confirme a sua conta no e-mail.`, { variant: "error" });
+                return
+            } else if (response.status === 401){
+                enqueueSnackbar(`E-mail ou senha inserido estão incorretos.`, { variant: "error" })
+                return
             }
             const data = await response.text();
             localStorage.setItem("emailUsuario", login);
@@ -79,8 +81,10 @@ export default function Example() {
     };
 
     const registrarUsuario = async () => {
+        setCriandoConta(true);
         if (senha !== confirmarSenha) {
             enqueueSnackbar("As senhas não coincidem.", { variant: "error" });
+            setCriandoConta(false);
             return;
         }
 
@@ -89,6 +93,7 @@ export default function Example() {
         if (errosSenha.length > 0) {
             const mensagem = `A senha deve conter: ${errosSenha.join(", ")}.`;
             enqueueSnackbar(mensagem, { variant: "error" });
+            setCriandoConta(false);
             return;
         }
 
@@ -105,14 +110,45 @@ export default function Example() {
                 }),
             });
 
+            if (response.status === 409){
+                enqueueSnackbar(`Já existe um usuário registrado com este e-mail.`, { variant: "error" });
+            }
             if (!response.ok) {
                 throw new Error("Erro ao registrar usuário");
             }
 
-            enqueueSnackbar("Usuário registrado com sucesso! Agora você pode fazer login.", { variant: "success" });
+            enqueueSnackbar("Enviamos um e-mail de confirmação para você, por favor confirme para fazer login!", { variant: "success" });
+            setShowModal(true); // Exibe o modal
+            setCodigoConfirmacao("")
             setIsRegister(false); // Retorna para a tela de login
         } catch (error) {
             enqueueSnackbar(`Erro ao registrar usuário. Tente novamente!`, { variant: "error" });
+        } finally {
+            setCriandoConta(false);
+        }
+    };
+
+    const confirmarConta = async () => {
+        try {
+            const response = await fetch(`${requisicaoAPI}/usuario/confirmarConta?codigo=${codigoConfirmacao}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+            });
+
+            if (!response.ok) {
+                if (response.status === 400) {
+                    enqueueSnackbar("Código inválido ou expirado. Tente novamente.", { variant: "error" });
+                } else {
+                    enqueueSnackbar("Erro ao confirmar conta. Tente novamente.", { variant: "error" });
+                }
+                return;
+            }
+
+            enqueueSnackbar("Conta confirmada com sucesso! Agora você pode fazer login.", { variant: "success" });
+            setShowModal(false); // Fecha o modal
+            setIsRegister(false); // Retorna à tela de login
+        } catch (error) {
+            enqueueSnackbar(`Erro ao confirmar conta. Tente novamente!`, { variant: "error" });
         }
     };
 
@@ -206,12 +242,17 @@ export default function Example() {
                                         </div>
                                     </div>
                                     <div>
-                                        <button
-                                            type="submit"
-                                            className="flex mt-6 w-full justify-center rounded-md bg-[#449E5C] px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#388E4B] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#449E5C]"
-                                        >
-                                            Registrar
-                                        </button>
+                                    <button
+                                        type="submit"
+                                        className={`flex mt-6 w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 
+                                            ${criandoConta 
+                                                ? "bg-gray-400 cursor-not-allowed text-gray-700" // Estilo quando desabilitado
+                                                : "bg-[#449E5C] text-white hover:bg-[#388E4B] focus-visible:outline-[#449E5C]"
+                                            }`}
+                                        disabled={criandoConta}
+                                    >
+                                        {criandoConta ? "Criando conta..." : "Registrar"}
+                                    </button>
                                     </div>
                                     <p className="mt-6 text-center text-sm text-gray-500">
                                         Já possui uma conta?{' '}
@@ -295,6 +336,41 @@ export default function Example() {
                         </div>
                     </div>
                 </div>
+                {/* Modal de confirmação */}
+                {showModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                        <div className="bg-white rounded-lg p-6 w-80 shadow-lg">
+                            <h2 className="text-lg font-semibold text-gray-700 text-center">Confirmação de Conta</h2>
+                            <div className="mt-4">
+                                <label htmlFor="codigo" className="block text-sm font-medium text-gray-700">
+                                    Insira o código de 6 dígitos
+                                </label>
+                                <input
+                                    id="codigo"
+                                    type="text"
+                                    maxLength={6}
+                                    onChange={handleCodigoConfirmacao}
+                                    value={codigoConfirmacao}
+                                    className="mt-1 block pl-2 w-full rounded-md border-gray-300 shadow-sm focus:border-[#449E5C] focus:ring-[#449E5C] sm:text-sm"
+                                />
+                            </div>
+                            <div className="mt-6 flex justify-end space-x-2">
+                                <button
+                                    onClick={() => setShowModal(false)}
+                                    className="px-4 py-2 bg-gray-300 rounded-md text-sm font-medium hover:bg-gray-400"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={confirmarConta}
+                                    className="px-4 py-2 bg-[#449E5C] text-white rounded-md text-sm font-medium hover:bg-[#388E4B]"
+                                >
+                                    Confirmar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 <div className="border-t border-gray-200 pt-4" />
             </div>
         </div>
