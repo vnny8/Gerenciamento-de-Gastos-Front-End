@@ -14,6 +14,7 @@ export default function Example() {
     const [confirmarSenha, setConfirmarSenha] = useState("");
     const [isRegister, setIsRegister] = useState(false); // Controla o estado entre login e registro
     const [criandoConta, setCriandoConta] = useState(false);
+    const [enviandoPedidoAlterarSenha, setEnviandoPedidoAlterarSenha] = useState(false);
     const navigate = useNavigate();
     const { enqueueSnackbar } = useSnackbar();
     const [codigoConfirmacao, setCodigoConfirmacao] = useState("");
@@ -24,6 +25,17 @@ export default function Example() {
     const handleNome = (event) => setNome(event.target.value);
     const handleConfirmarSenha = (event) => setConfirmarSenha(event.target.value);
     const [showModal, setShowModal] = useState(false); 
+    const [showModalRecuperarSenha, setShowModalRecuperarSenha] = useState(false); 
+    const [novaSenha, setNovaSenha] = useState("");
+    const [confirmarNovaSenha, setConfirmarNovaSenha] = useState("");
+    const [emailRecuperacao, setEmailRecuperacao] = useState("");
+    const [codigoRecuperacao, setCodigoRecuperacao] = useState("");
+    const [resetStep, setResetStep] = useState(1);
+
+    const handleEmailRecuperacao = (e) => setEmailRecuperacao(e.target.value);
+    const handleCodigoRecuperacao = (e) => setCodigoRecuperacao(e.target.value);
+    const handleNovaSenha = (e) => setNovaSenha(e.target.value);
+    const handleConfirmarNovaSenha = (e) => setConfirmarNovaSenha(e.target.value);
 
     const fazerLogin = async () => {
         try {
@@ -40,6 +52,9 @@ export default function Example() {
             } else if (response.status === 401){
                 enqueueSnackbar(`E-mail ou senha inserido estão incorretos.`, { variant: "error" })
                 return
+            }
+            if (!response.ok) {
+                throw new Error("Erro ao fazer login.");
             }
             const data = await response.text();
             localStorage.setItem("emailUsuario", login);
@@ -135,9 +150,13 @@ export default function Example() {
                 headers: { "Content-Type": "application/json" },
             });
 
+            if (response.status === 404){
+                enqueueSnackbar(`Código de confirmação inválido.`, { variant: "error" });
+                return
+            }
             if (!response.ok) {
                 if (response.status === 400) {
-                    enqueueSnackbar("Código inválido ou expirado. Tente novamente.", { variant: "error" });
+                    enqueueSnackbar("Código inválido. Tente novamente.", { variant: "error" });
                 } else {
                     enqueueSnackbar("Erro ao confirmar conta. Tente novamente.", { variant: "error" });
                 }
@@ -149,6 +168,77 @@ export default function Example() {
             setIsRegister(false); // Retorna à tela de login
         } catch (error) {
             enqueueSnackbar(`Erro ao confirmar conta. Tente novamente!`, { variant: "error" });
+        }
+    };
+
+    const solicitarRecuperacaoSenha = async () => {
+        setEnviandoPedidoAlterarSenha(true)
+        try {
+            const response = await fetch(`${requisicaoAPI}/usuario/esqueciSenha?email=${emailRecuperacao}`, {
+                method: "POST",
+            });
+            if (!response.ok) {
+                throw new Error("Erro ao enviar e-mail de recuperação.");
+            }
+            enqueueSnackbar("Código de recuperação enviado para o e-mail.", { variant: "success" });
+            setResetStep(2); // Passa para a próxima etapa (inserir código)
+        } catch (error) {
+            enqueueSnackbar("Erro ao solicitar recuperação de senha. Tente novamente.", { variant: "error" });
+        } finally {
+            setEnviandoPedidoAlterarSenha(false)
+        }
+    };
+
+    const alterarSenha = async () => {
+        if (novaSenha !== confirmarNovaSenha) {
+            enqueueSnackbar("As senhas não coincidem.", { variant: "error" });
+            return;
+        }
+
+        const errosSenha = validarSenha(novaSenha);
+
+        if (errosSenha.length > 0) {
+            const mensagem = `A senha deve conter: ${errosSenha.join(", ")}.`;
+            enqueueSnackbar(mensagem, { variant: "error" });
+            return;
+        }
+
+        try {
+            const response = await fetch(`${requisicaoAPI}/usuario/alterarSenha`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    emailUsuario: emailRecuperacao,
+                    codigo: codigoRecuperacao,
+                    novaSenha: novaSenha,
+                }),
+            });
+
+            if (response.status === 404){
+                enqueueSnackbar(`Código de confirmação inválido.`, { variant: "error" });
+                return
+            }
+            if (response.status === 400){
+                enqueueSnackbar(`Código de confirmação já utilizado anteriormente.`, { variant: "error" });
+                return
+            }
+            if (response.status === 410){
+                enqueueSnackbar(`Código de confirmação já expirou.`, { variant: "error" });
+                return
+            }
+            if (!response.ok) {
+                throw new Error("Erro ao alterar a senha.");
+            }
+
+            enqueueSnackbar("Senha alterada com sucesso! Agora você pode fazer login.", { variant: "success" });
+            setShowModalRecuperarSenha(false);
+            setEmailRecuperacao("");
+            setCodigoRecuperacao("");
+            setNovaSenha("");
+            setConfirmarNovaSenha("");
+            setResetStep(1); // Reseta o fluxo
+        } catch (error) {
+            enqueueSnackbar("Erro ao alterar senha. Tente novamente.", { variant: "error" });
         }
     };
 
@@ -307,6 +397,19 @@ export default function Example() {
                                             />
                                         </div>
                                     </div>
+                                    <div className="mt-3 flex justify-end">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setShowModalRecuperarSenha(true)
+                                                setResetStep(1);
+                                                setEmailRecuperacao("");
+                                            }}
+                                            className="text-sm text-[#449E5C] hover:text-[#388E4B] font-semibold"
+                                        >
+                                            Esqueci minha senha
+                                        </button>
+                                    </div>
                                     <div>
                                         <button
                                             type="submit"
@@ -368,6 +471,114 @@ export default function Example() {
                                     Confirmar
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                )}
+                {/* Modal de recuperação de senha */}
+                {showModalRecuperarSenha && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                        <div className="bg-white rounded-lg p-6 w-80 shadow-lg">
+                            {resetStep === 1 && (
+                                <>
+                                    <h2 className="text-lg font-semibold text-gray-700 text-center">Esqueci minha senha</h2>
+                                    <div className="mt-4">
+                                        <label htmlFor="emailRecuperacao" className="block text-sm font-medium text-gray-700">
+                                            Insira seu e-mail
+                                        </label>
+                                        <input
+                                            id="emailRecuperacao"
+                                            type="email"
+                                            value={emailRecuperacao}
+                                            onChange={handleEmailRecuperacao}
+                                            className="mt-1 block pl-2 w-full rounded-md border-gray-300 shadow-sm focus:border-[#449E5C] focus:ring-[#449E5C] sm:text-sm"
+                                        />
+                                    </div>
+                                    <div className="mt-6 flex justify-end space-x-2">
+                                        <button
+                                            onClick={() => {
+                                                setShowModalRecuperarSenha(false)
+                                                setResetStep(1);
+                                                setEmailRecuperacao("");
+                                            }}
+                                            className="px-4 py-2 bg-gray-300 rounded-md text-sm font-medium hover:bg-gray-400"
+                                        >
+                                            Cancelar
+                                        </button>
+                                        <button
+                                            onClick={solicitarRecuperacaoSenha}
+                                            className={`px-4 py-2 rounded-md text-sm font-medium text-white ${
+                                                enviandoPedidoAlterarSenha
+                                                    ? "bg-gray-400 cursor-not-allowed"
+                                                    : "bg-[#449E5C] hover:bg-[#388E4B]"
+                                            }`}
+                                            disabled={enviandoPedidoAlterarSenha}
+                                        >
+                                            {enviandoPedidoAlterarSenha
+                                            ? "Enviando e-mail..."
+                                            : "Receber código"}
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                            {resetStep === 2 && (
+                                <>
+                                    <h2 className="text-lg font-semibold text-gray-700 text-center">Alterar Senha</h2>
+                                    <div className="mt-4">
+                                        <label htmlFor="codigoRecuperacao" className="block text-sm font-medium text-gray-700">
+                                            Insira o código recebido
+                                        </label>
+                                        <input
+                                            id="codigoRecuperacao"
+                                            type="text"
+                                            value={codigoRecuperacao}
+                                            onChange={handleCodigoRecuperacao}
+                                            className="mt-1 block pl-2 w-full rounded-md border-gray-300 shadow-sm focus:border-[#449E5C] focus:ring-[#449E5C] sm:text-sm"
+                                        />
+                                    </div>
+                                    <div className="mt-4">
+                                        <label htmlFor="novaSenha" className="block text-sm font-medium text-gray-700">
+                                            Nova Senha
+                                        </label>
+                                        <input
+                                            id="novaSenha"
+                                            type="password"
+                                            value={novaSenha}
+                                            onChange={handleNovaSenha}
+                                            className="mt-1 block pl-2 w-full rounded-md border-gray-300 shadow-sm focus:border-[#449E5C] focus:ring-[#449E5C] sm:text-sm"
+                                        />
+                                    </div>
+                                    <div className="mt-4">
+                                        <label htmlFor="confirmarNovaSenha" className="block text-sm font-medium text-gray-700">
+                                            Confirmar Nova Senha
+                                        </label>
+                                        <input
+                                            id="confirmarNovaSenha"
+                                            type="password"
+                                            value={confirmarNovaSenha}
+                                            onChange={handleConfirmarNovaSenha}
+                                            className="mt-1 block pl-2 w-full rounded-md border-gray-300 shadow-sm focus:border-[#449E5C] focus:ring-[#449E5C] sm:text-sm"
+                                        />
+                                    </div>
+                                    <div className="mt-6 flex justify-end space-x-2">
+                                        <button
+                                            onClick={() => {
+                                                setShowModalRecuperarSenha(false)
+                                                setResetStep(1);
+                                                setEmailRecuperacao("");
+                                            }}
+                                            className="px-4 py-2 bg-gray-300 rounded-md text-sm font-medium hover:bg-gray-400"
+                                        >
+                                            Cancelar
+                                        </button>
+                                        <button
+                                            onClick={alterarSenha}
+                                            className="px-4 py-2 bg-[#449E5C] text-white rounded-md text-sm font-medium hover:bg-[#388E4B]"
+                                        >
+                                            Alterar Senha
+                                        </button>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 )}
