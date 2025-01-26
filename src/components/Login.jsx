@@ -5,6 +5,7 @@ import { useAuth } from './AuthProvider';
 import { useSnackbar } from 'notistack';
 import { FcGoogle } from 'react-icons/fc';
 import requisicaoAPI from '../api';
+import apiKey from '../apiKey';
 
 export default function Example() {
     const { login: authLogin } = useAuth(); // Obtém o método de login do contexto
@@ -44,6 +45,7 @@ export default function Example() {
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": "Basic " + btoa(`${login}:${senha}`),
+                    "x-api-key": apiKey
                 },
             });
             if (response.status === 403){
@@ -117,6 +119,7 @@ export default function Example() {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "x-api-key": apiKey
                 },
                 body: JSON.stringify({
                     nome,
@@ -145,9 +148,9 @@ export default function Example() {
 
     const confirmarConta = async () => {
         try {
-            const response = await fetch(`${requisicaoAPI}/usuario/confirmarConta?codigo=${codigoConfirmacao}`, {
+            const response = await fetch(`${requisicaoAPI}/usuario/confirmarConta?codigo=${codigoConfirmacao}&email=${login}`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", "x-api-key": apiKey },
             });
 
             if (response.status === 404){
@@ -176,6 +179,9 @@ export default function Example() {
         try {
             const response = await fetch(`${requisicaoAPI}/usuario/esqueciSenha?email=${emailRecuperacao}`, {
                 method: "POST",
+                headers: {
+                    "x-api-key": apiKey, // Insere a API Key do ambiente
+                },
             });
             if (!response.ok) {
                 throw new Error("Erro ao enviar e-mail de recuperação.");
@@ -206,7 +212,7 @@ export default function Example() {
         try {
             const response = await fetch(`${requisicaoAPI}/usuario/alterarSenha`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", "x-api-key": apiKey },
                 body: JSON.stringify({
                     emailUsuario: emailRecuperacao,
                     codigo: codigoRecuperacao,

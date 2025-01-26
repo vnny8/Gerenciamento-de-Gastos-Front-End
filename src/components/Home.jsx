@@ -18,6 +18,7 @@ import {
 import FormCategoria from "./FormCategoria";
 import FormNovoGasto from "./FormNovoGasto";
 import requisicaoAPI from "../api";
+import apiKey from "../apiKey";
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
@@ -98,6 +99,7 @@ function Home() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-api-key": apiKey,
           Authorization: `Bearer ${token}`, // Adiciona o token no cabeçalho
         },
         body: JSON.stringify(categoriaRequest), // Converte o objeto para JSON
@@ -137,6 +139,7 @@ function Home() {
         method: "PUT", // Muda para PUT
         headers: {
           "Content-Type": "application/json",
+          "x-api-key": apiKey,
           Authorization: `Bearer ${token}`, // Adiciona o token no cabeçalho
         },
         body: JSON.stringify(categoriaRequest), // Converte o objeto para JSON
@@ -169,6 +172,7 @@ function Home() {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
+          "x-api-key": apiKey,
         },
       });
       if (response.ok) {
@@ -190,10 +194,15 @@ function Home() {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
+          "x-api-key": apiKey,
         },
       });
       if (response.ok) {
         const data = await response.json();
+        data.forEach((item, i) => {
+          console.log(`Index: ${i}, Item:`, item);
+          item.valor = formatCurrencyOnInput(String(item.valor));
+        });      
         setGastosEditar(data);
       } else if (response.status === 401){
         tokenExpirou()
@@ -202,6 +211,7 @@ function Home() {
       }
     } catch (error) {
       enqueueSnackbar("Erro no servidor ao buscar categorias.", { variant: "error" });
+      console.log(error)
     }
   };
   
@@ -221,6 +231,7 @@ function Home() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-api-key": apiKey,
           Authorization: `Bearer ${token}`, // Adiciona o token no cabeçalho
         },
         body: JSON.stringify(gastoRequest), // Converte o objeto para JSON
@@ -260,6 +271,7 @@ function Home() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-api-key": apiKey,
           Authorization: `Bearer ${token}`, // Adiciona o token no cabeçalho
         },
         body: JSON.stringify(salarioRequest), // Converte o objeto para JSON
@@ -288,13 +300,13 @@ function Home() {
     e.preventDefault();
     console.log("NovoGasto para editar está assim: ", novoGasto)
     novoGasto.data = novoGasto.data ? `${novoGasto.data}T00:00:00` : null
-    console.log(novoGasto.data)
-    console.log(novoGasto.data ? `${novoGasto.data}T00:00:00` : null)
+    novoGasto.valor = parseFloat(novoGasto.valor.replace(/[^\d,-]/g, "").replace(",", ".").trim())
     try {
       const response = await fetch(`${requisicaoAPI}/gasto/editar`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          "x-api-key": apiKey,
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(novoGasto),
@@ -323,6 +335,7 @@ function Home() {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
+          "x-api-key": apiKey,
         },
       });
   
@@ -407,6 +420,7 @@ function Home() {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`, // Adiciona o token no cabeçalho
+          "x-api-key": apiKey,
         },
       });
   
@@ -438,6 +452,7 @@ function Home() {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`, // Token de autenticação
+            "x-api-key": apiKey,
           },
         }
       );
@@ -662,6 +677,7 @@ function Home() {
               onSelectGasto={handleSelectNovoGasto}
               isEditing={modalStep === "edit"}
               onDelete={handleDeleteGasto}
+              formatCurrencyOnInput={formatCurrencyOnInput}
             />
           </div>
         </div>

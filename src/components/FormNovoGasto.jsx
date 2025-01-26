@@ -10,8 +10,10 @@ function FormNovoGasto({
   gastos = [],
   onSelectGasto,
   isEditing = false, 
-  onDelete 
+  onDelete,
+  formatCurrencyOnInput
 }) {
+  
   return (
     <form onSubmit={handleSubmit}>
       {isEditing && (
@@ -75,7 +77,7 @@ function FormNovoGasto({
           id="valorGasto"
           type="text"
           value={gasto.valor}
-          onChange={(e) => setGasto({ ...gasto, valor: e.target.value })}
+          onChange={(e) => setGasto({ ...gasto, valor: formatCurrencyOnInput(e.target.value)})}
           className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
           required
         />
