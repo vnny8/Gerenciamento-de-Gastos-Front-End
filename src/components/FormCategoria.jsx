@@ -1,3 +1,5 @@
+import { faPencilAlt, faPlus, faSave, faTrash, faWrench, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 
 function FormCategoria({ 
@@ -74,7 +76,7 @@ function FormCategoria({
             onClick={onDelete}
             className="mr-2 bg-red-500 text-white px-4 py-2 rounded-md"
           >
-            Excluir
+            <FontAwesomeIcon icon={faTrash} /> Excluir
           </button>
         )}
         <button
@@ -82,11 +84,12 @@ function FormCategoria({
           onClick={onCancel}
           className="mr-2 bg-gray-200 text-gray-800 px-4 py-2 rounded-md"
         >
-          Cancelar
+          <FontAwesomeIcon icon={faXmark} /> Cancelar
         </button>
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md">
+        <button type="submit" className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md">
+          <FontAwesomeIcon icon={buttonText === "Salvar" ? faSave : faPlus} className="mr-2" />
           {buttonText}
-        </button>
+      </button>
       </div>
     </form>
   );

@@ -6,6 +6,8 @@ import { useSnackbar } from 'notistack';
 import { FcGoogle } from 'react-icons/fc';
 import requisicaoAPI from '../api';
 import apiKey from '../apiKey';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck, faEnvelope, faKey, faRightToBracket, faUserPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 
 export default function Example() {
     const { login: authLogin } = useAuth(); // Obtém o método de login do contexto
@@ -340,13 +342,15 @@ export default function Example() {
                                     <div>
                                     <button
                                         type="submit"
-                                        className={`flex mt-6 w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 
-                                            ${criandoConta 
-                                                ? "bg-gray-400 cursor-not-allowed text-gray-700" // Estilo quando desabilitado
-                                                : "bg-[#449E5C] text-white hover:bg-[#388E4B] focus-visible:outline-[#449E5C]"
+                                        className={`flex items-center justify-center mt-6 w-full rounded-md px-3 py-1.5 text-sm font-semibold leading-6 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 
+                                            ${
+                                                criandoConta
+                                                    ? "bg-gray-400 cursor-not-allowed text-gray-700" // Estilo quando desabilitado
+                                                    : "bg-[#449E5C] text-white hover:bg-[#388E4B] focus-visible:outline-[#449E5C]"
                                             }`}
                                         disabled={criandoConta}
                                     >
+                                        <FontAwesomeIcon icon={faUserPlus} className="mr-2" />
                                         {criandoConta ? "Criando conta..." : "Registrar"}
                                     </button>
                                     </div>
@@ -417,12 +421,13 @@ export default function Example() {
                                         </button>
                                     </div>
                                     <div>
-                                        <button
-                                            type="submit"
-                                            className="flex mt-6 w-full justify-center rounded-md bg-[#449E5C] px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#388E4B] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#449E5C]"
-                                        >
-                                            Fazer login
-                                        </button>
+                                    <button
+                                        type="submit"
+                                        className="flex items-center justify-center mt-6 w-full rounded-md bg-[#449E5C] px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#388E4B] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#449E5C]"
+                                    >
+                                        <FontAwesomeIcon icon={faRightToBracket} className="mr-2" />
+                                        Fazer login
+                                    </button>
                                     </div>
                                     <p className="mt-6 text-center text-sm text-gray-500">
                                         Não possui conta?{' '}
@@ -468,13 +473,13 @@ export default function Example() {
                                     onClick={() => setShowModal(false)}
                                     className="px-4 py-2 bg-gray-300 rounded-md text-sm font-medium hover:bg-gray-400"
                                 >
-                                    Cancelar
+                                    <FontAwesomeIcon icon={faXmark} className="mr-2" /> Cancelar
                                 </button>
                                 <button
                                     onClick={confirmarConta}
                                     className="px-4 py-2 bg-[#449E5C] text-white rounded-md text-sm font-medium hover:bg-[#388E4B]"
                                 >
-                                    Confirmar
+                                    <FontAwesomeIcon icon={faCheck} className="mr-2" /> Confirmar
                                 </button>
                             </div>
                         </div>
@@ -483,7 +488,7 @@ export default function Example() {
                 {/* Modal de recuperação de senha */}
                 {showModalRecuperarSenha && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                        <div className="bg-white rounded-lg p-6 w-80 shadow-lg">
+                        <div className="bg-white rounded-lg p-6 w-94 shadow-lg">
                             {resetStep === 1 && (
                                 <>
                                     <h2 className="text-lg font-semibold text-gray-700 text-center">Esqueci minha senha</h2>
@@ -508,7 +513,7 @@ export default function Example() {
                                             }}
                                             className="px-4 py-2 bg-gray-300 rounded-md text-sm font-medium hover:bg-gray-400"
                                         >
-                                            Cancelar
+                                            <FontAwesomeIcon icon={faXmark} className="mr-2"/> Cancelar
                                         </button>
                                         <button
                                             onClick={solicitarRecuperacaoSenha}
@@ -519,6 +524,7 @@ export default function Example() {
                                             }`}
                                             disabled={enviandoPedidoAlterarSenha}
                                         >
+                                            <FontAwesomeIcon icon={faEnvelope} className="mr-2" />
                                             {enviandoPedidoAlterarSenha
                                             ? "Enviando e-mail..."
                                             : "Receber código"}
@@ -574,12 +580,13 @@ export default function Example() {
                                             }}
                                             className="px-4 py-2 bg-gray-300 rounded-md text-sm font-medium hover:bg-gray-400"
                                         >
-                                            Cancelar
+                                            <FontAwesomeIcon icon={faXmark} /> Cancelar
                                         </button>
                                         <button
                                             onClick={alterarSenha}
                                             className="px-4 py-2 bg-[#449E5C] text-white rounded-md text-sm font-medium hover:bg-[#388E4B]"
                                         >
+                                            <FontAwesomeIcon icon={faKey} className="mr-2" />
                                             Alterar Senha
                                         </button>
                                     </div>

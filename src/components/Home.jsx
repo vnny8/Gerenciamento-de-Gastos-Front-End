@@ -19,6 +19,8 @@ import FormCategoria from "./FormCategoria";
 import FormNovoGasto from "./FormNovoGasto";
 import requisicaoAPI from "../api";
 import apiKey from "../apiKey";
+import { faChartBar, faChartPie, faClipboardList, faFolderTree, faMagnifyingGlass, faMoneyBill, faPencilAlt, faRightFromBracket, faWallet, faWrench, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
@@ -500,7 +502,7 @@ function Home() {
           onClick={handleSearchExpenses}
           className="w-full mt-3 bg-blue-500 text-white font-semibold py-2 rounded-md hover:bg-blue-600 transition duration-200"
         >
-          Pesquisar Gastos
+          <FontAwesomeIcon icon={faMagnifyingGlass} /> Pesquisar Gastos
         </button>
 
         <div className="mt-5">
@@ -515,7 +517,7 @@ function Home() {
           onClick={handleLogout}
           className="w-full bg-red-500 text-white font-semibold py-2 rounded-md hover:bg-red-600 transition duration-200 mt-10"
         >
-          Sair
+          <FontAwesomeIcon icon={faRightFromBracket} />  Sair
         </button>
       </div>
 
@@ -538,19 +540,19 @@ function Home() {
             onClick={handleOpenModalCategoria}
             className="w-full lg:w-full mb-2 lg:mb-0 bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
           >
-            + Gerenciar Categoria
+            <FontAwesomeIcon icon={faFolderTree} /> Gerenciar Categoria
           </button>
           <button
             onClick={handleOpenModalGasto}
             className="w-full lg:w-full mb-2 lg:mb-0 bg-[#449E5C] text-white font-semibold py-2 px-4 rounded-md hover:bg-[#388E4B] transition duration-200"
           >
-            + Gerenciar um Gasto
+            <FontAwesomeIcon icon={faMoneyBill} /> Gerenciar um Gasto
           </button>
           <button
             onClick={handleOpenModalSalario}
             className="w-full lg:w-full mb-4 lg:mb-0 bg-yellow-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-yellow-600 transition duration-200"
           >
-            + Atualizar Salário do mês
+            <FontAwesomeIcon icon={faWallet} /> Atualizar Salário do mês
           </button>
         </div>
 
@@ -565,7 +567,7 @@ function Home() {
               chartType === "pie" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"
             }`}
           >
-            Gráfico de Pizza
+            <FontAwesomeIcon icon={faChartPie} /> Gráfico de Pizza
           </button>
           <button
             onClick={() => setChartType("bar")}
@@ -573,7 +575,7 @@ function Home() {
               chartType === "bar" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"
             }`}
           >
-            Gráfico de Barras
+            <FontAwesomeIcon icon={faChartBar} /> Gráfico de Barras
           </button>
         </div>
 
@@ -607,7 +609,7 @@ function Home() {
                   modalStep === "create" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"
                 }`}
               >
-                Criar
+                <FontAwesomeIcon icon={faWrench} /> Criar
               </button>
               <button
                 onClick={() => {
@@ -619,7 +621,7 @@ function Home() {
                   modalStep === "edit" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"
                 }`}
               >
-                Editar
+                <FontAwesomeIcon icon={faPencilAlt} /> Editar
               </button>
             </div>
             <FormCategoria
@@ -650,7 +652,7 @@ function Home() {
                   modalStep === "create" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"
                 }`}
               >
-                Criar
+                <FontAwesomeIcon icon={faWrench} /> Criar
               </button>
               <button
                 onClick={() => {
@@ -663,7 +665,7 @@ function Home() {
                   modalStep === "edit" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"
                 }`}
               >
-                Editar
+                <FontAwesomeIcon icon={faPencilAlt} /> Editar
               </button>
             </div>
             <FormNovoGasto
@@ -706,10 +708,10 @@ function Home() {
                   onClick={handleCloseModalSalario}
                   className="mr-2 bg-gray-200 text-gray-800 px-4 py-2 rounded-md"
                 >
-                  Cancelar
+                  <FontAwesomeIcon icon={faXmark} /> Cancelar
                 </button>
                 <button type="submit" className="bg-yellow-500 text-white px-4 py-2 rounded-md">
-                  Cadastrar
+                <FontAwesomeIcon icon={faClipboardList} /> Cadastrar
                 </button>
               </div>
             </form>
