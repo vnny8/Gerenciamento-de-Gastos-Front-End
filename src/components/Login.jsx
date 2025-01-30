@@ -254,12 +254,13 @@ export default function Example() {
         <div className="flex items-center justify-center min-h-screen bg-white-50">
             <div className="max-w-7xl px-6 lg:px-8">
                 <div className="border-t border-gray-200 pt-4" />
-                <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-2">
+                <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-2 lg:items-center">
                     <Imagem />
                     <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
                         <div className="items-center sm:mx-auto sm:w-full sm:max-w-sm">
-                            <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+                            <h2 className="mt-4 text-center text-3xl font-extrabold leading-9 tracking-tight text-gray-900">
                                 {isRegister ? "Crie sua conta" : "Faça login em sua conta"}
+                                <div className="mt-4 w-16 h-1.5 bg-[#449E5C] rounded-full mx-auto" />
                             </h2>
                                 <div className="mt-6 flex justify-center">
                                     <button
@@ -271,6 +272,17 @@ export default function Example() {
                                         <span><b>Entrar com o Google</b></span>
                                     </button>
                                 </div>
+                                {/* Separador */}
+                        <div className="mt-8">
+                            <div className="relative">
+                                <div className="absolute inset-0 flex items-center">
+                                    <div className="w-full border-t border-gray-300" />
+                                </div>
+                                <div className="relative flex justify-center text-sm">
+                                    <span className="px-2 bg-white text-gray-500">ou continue com</span>
+                                </div>
+                            </div>
+                        </div>
                         </div>
                         <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-sm">
                             {isRegister ? (
