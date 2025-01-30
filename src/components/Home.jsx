@@ -500,9 +500,10 @@ function Home() {
         {/* Botão Pesquisar Gastos */}
         <button
           onClick={handleSearchExpenses}
-          className="w-full mt-3 bg-blue-500 text-white font-semibold py-2 rounded-md hover:bg-blue-600 transition duration-200"
+          className="w-full mt-3 flex items-center justify-center gap-2 bg-[#449E5C] hover:bg-[#357d47] text-white font-semibold py-2.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-sm"
         >
-          <FontAwesomeIcon icon={faMagnifyingGlass} /> Pesquisar Gastos
+          <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4" />
+          Pesquisar Gastos
         </button>
 
         <div className="mt-5">
@@ -515,82 +516,92 @@ function Home() {
         {/* Botão de Logout */}
         <button
           onClick={handleLogout}
-          className="w-full bg-red-500 text-white font-semibold py-2 rounded-md hover:bg-red-600 transition duration-200 mt-10"
+          className="w-full flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white font-semibold py-2.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-sm mt-8"
         >
-          <FontAwesomeIcon icon={faRightFromBracket} />  Sair
+          <FontAwesomeIcon icon={faRightFromBracket} className="w-4 h-4" />
+          Sair do Sistema
         </button>
       </div>
 
       {/* Seção Principal */}
-      <div className="w-full lg:flex-1 p-6 lg:p-8 bg-white rounded-lg shadow-md">
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-green-100 text-green-800 font-semibold text-center p-4 rounded-lg shadow-sm">
-            <h3 className="text-lg">Salário Mensal</h3>
-            <p className="text-xl">{formatarParaReais(salarioMensal)}</p>
+      <div className="flex-1 p-6 bg-white rounded-xl shadow-lg border border-gray-100">
+        {/* Cards Superiores */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="bg-green-50/80 border border-green-100 p-5 rounded-xl shadow-sm">
+            <h3 className="text-base font-medium text-green-800 mb-1">Salário Mensal</h3>
+            <p className="text-2xl font-bold text-green-900">{formatarParaReais(salarioMensal)}</p>
           </div>
-          <div className="bg-red-100 text-red-800 font-semibold text-center p-4 rounded-lg shadow-sm">
-            <h3 className="text-lg">Dinheiro Restante</h3>
-            <p className="text-xl">{formatarParaReais(salarioMensal - gastoDoMes)}</p>
+          <div className="bg-red-50/80 border border-red-100 p-5 rounded-xl shadow-sm">
+            <h3 className="text-base font-medium text-red-800 mb-1">Saldo Disponível</h3>
+            <p className="text-2xl font-bold text-red-900">{formatarParaReais(salarioMensal - gastoDoMes)}</p>
           </div>
         </div>
 
         {/* Botões */}
-        <div className="flex flex-col lg:flex-row lg:space-x-4 mb-5">
+        <div className="flex flex-col lg:flex-row gap-3 mb-3">
           <button
             onClick={handleOpenModalCategoria}
-            className="w-full lg:w-full mb-2 lg:mb-0 bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
+            className="flex-1 flex items-center justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-sm"
           >
-            <FontAwesomeIcon icon={faFolderTree} /> Gerenciar Categoria
+            <FontAwesomeIcon icon={faFolderTree} className="w-4 h-4" />
+            Gerenciar Categorias
           </button>
           <button
             onClick={handleOpenModalGasto}
-            className="w-full lg:w-full mb-2 lg:mb-0 bg-[#449E5C] text-white font-semibold py-2 px-4 rounded-md hover:bg-[#388E4B] transition duration-200"
+            className="flex-1 flex items-center justify-center gap-2 bg-[#449E5C] hover:bg-[#357d47] text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-sm"
           >
-            <FontAwesomeIcon icon={faMoneyBill} /> Gerenciar um Gasto
+            <FontAwesomeIcon icon={faMoneyBill} className="w-4 h-4" />
+            Adicionar Gasto
           </button>
           <button
             onClick={handleOpenModalSalario}
-            className="w-full lg:w-full mb-4 lg:mb-0 bg-yellow-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-yellow-600 transition duration-200"
+            className="flex-1 flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-sm"
           >
-            <FontAwesomeIcon icon={faWallet} /> Atualizar Salário do mês
+            <FontAwesomeIcon icon={faWallet} className="w-4 h-4" />
+            Atualizar Salário
           </button>
         </div>
 
-        {/* Gráfico */}
-        <div className="flex items-center justify-center">
-        <div className="w-full lg:flex-1 p-6 lg:p-8 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-4 text-gray-800">Resumo de Gastos</h2>
-        <div className="flex justify-end mb-4">
-          <button
-            onClick={() => setChartType("pie")}
-            className={`px-4 py-2 mr-2 font-semibold rounded-md ${
-              chartType === "pie" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"
-            }`}
-          >
-            <FontAwesomeIcon icon={faChartPie} /> Gráfico de Pizza
-          </button>
-          <button
-            onClick={() => setChartType("bar")}
-            className={`px-4 py-2 font-semibold rounded-md ${
-              chartType === "bar" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"
-            }`}
-          >
-            <FontAwesomeIcon icon={faChartBar} /> Gráfico de Barras
-          </button>
+        {/* Seção do Gráfico */}
+        <div className="bg-gray-50 rounded-xl shadow-inner p-6 border border-gray-200">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-3">
+            <h2 className="text-xl font-bold text-gray-900 mb-3 lg:mb-0">Resumo de Gastos</h2>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setChartType("pie")}
+                className={`flex items-center gap-2 px-4 py-2 font-semibold rounded-lg transition-all duration-200 ${
+                  chartType === "pie" 
+                    ? "bg-[#449E5C] text-white shadow-inner" 
+                    : "bg-white text-gray-600 shadow-md hover:shadow-sm"
+                }`}
+              >
+                <FontAwesomeIcon icon={faChartPie} className="w-4 h-4" />
+                Pizza
+              </button>
+              <button
+                onClick={() => setChartType("bar")}
+                className={`flex items-center gap-2 px-4 py-2 font-semibold rounded-lg transition-all duration-200 ${
+                  chartType === "bar" 
+                    ? "bg-[#449E5C] text-white shadow-inner" 
+                    : "bg-white text-gray-600 shadow-md hover:shadow-sm"
+                }`}
+              >
+                <FontAwesomeIcon icon={faChartBar} className="w-4 h-4" />
+                Barras
+              </button>
+            </div>
+          </div>
+
+          <div className="h-96 bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+            {gastos.length > 0 ? (
+              <ComponenteDoGrafico data={gastos} chartType={chartType} />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <p className="text-gray-400 italic">Nenhum gasto registrado este mês</p>
+              </div>
+            )}
+          </div>
         </div>
-
-        {/* Gráfico */}
-        <div className="w-full h-80 bg-gray-100 rounded-lg p-5 overflow-hidden">
-
-          {gastos.length > 0 ? (
-            <ComponenteDoGrafico data={gastos} chartType={chartType} />
-          ) : (
-            <p className="text-gray-500 text-center">Nenhum gasto encontrado</p>
-          )}
-        </div>
-      </div>
-      </div>
-
       </div>
 
       {/* Modais */}
