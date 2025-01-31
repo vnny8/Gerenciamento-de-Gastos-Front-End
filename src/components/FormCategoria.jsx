@@ -69,12 +69,12 @@ function FormCategoria({
           />
         </div>
       </div>
-      <div className="flex justify-end">
+      <div className="flex justify-end mt-6">
         {isEditing && (
           <button
             type="button"
             onClick={onDelete}
-            className="mr-2 bg-red-500 text-white px-4 py-2 rounded-md"
+            className="mr-2 bg-red-500 text-white px-4 py-2 font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-sm"
           >
             <FontAwesomeIcon icon={faTrash} /> Excluir
           </button>
@@ -82,11 +82,11 @@ function FormCategoria({
         <button
           type="button"
           onClick={onCancel}
-          className="mr-2 bg-gray-200 text-gray-800 px-4 py-2 rounded-md"
+          className="mr-2 bg-gray-200 text-gray-800 px-4 py-2 font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-sm"
         >
           <FontAwesomeIcon icon={faXmark} /> Cancelar
         </button>
-        <button type="submit" className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md">
+        <button type="submit" className="flex items-center bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-sm">
           <FontAwesomeIcon icon={buttonText === "Salvar" ? faSave : faPlus} className="mr-2" />
           {buttonText}
       </button>

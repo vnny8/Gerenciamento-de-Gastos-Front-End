@@ -203,7 +203,9 @@ function Home() {
         const data = await response.json();
         data.forEach((item, i) => {
           console.log(`Index: ${i}, Item:`, item);
-          item.valor = formatCurrencyOnInput(String(item.valor));
+          console.log(item.valor)
+          item.valor = formatCurrencyOnInput(String(item.valor*100));
+          console.log(item.valor)
         });      
         setGastosEditar(data);
       } else if (response.status === 401){
@@ -610,30 +612,30 @@ function Home() {
         <div className="fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white w-full max-w-md mx-4 p-6 rounded-lg shadow-lg">
             {/* Stepper */}
-            <div className="flex justify-around mb-6 border-b pb-3">
-              <button
-                onClick={() => {
-                  setModalStep("create");
-                  setNovaCategoria({ "id": undefined, nome: "", cor_categoria: "#000000" });
-                }}
-                className={`px-4 py-2 font-semibold rounded-md ${
-                  modalStep === "create" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"
-                }`}
-              >
-                <FontAwesomeIcon icon={faWrench} /> Criar
-              </button>
-              <button
-                onClick={() => {
-                  fetchCategorias(); // Chama a função que carrega as categorias
-                  setModalStep("edit"); // Define o modal para o passo "Editar"
-                  setNovaCategoria({ "id": undefined, nome: "", cor_categoria: "#000000" });
-                }}
-                className={`px-4 py-2 font-semibold rounded-md ${
-                  modalStep === "edit" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"
-                }`}
-              >
-                <FontAwesomeIcon icon={faPencilAlt} /> Editar
-              </button>
+            <div className="flex gap-2  justify-around mb-6 border-b pb-3">
+            <button
+                  onClick={() => setModalStep("create")}
+                  className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-colors ${
+                    modalStep === "create" 
+                      ? "bg-[#449E5C] text-white" 
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  <FontAwesomeIcon icon={faWrench} /> Criar
+                </button>
+                <button
+                  onClick={() => {
+                    fetchCategorias();
+                    setModalStep("edit");
+                  }}
+                  className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-colors ${
+                    modalStep === "edit" 
+                      ? "bg-[#449E5C] text-white" 
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  <FontAwesomeIcon icon={faPencilAlt} /> Editar
+                </button>
             </div>
             <FormCategoria
               categoria={novaCategoria}
@@ -653,14 +655,16 @@ function Home() {
       {showModalGasto && (
         <div className="fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white w-full max-w-md mx-4 p-6 rounded-lg shadow-lg">
-          <div className="flex justify-around mb-6 border-b pb-3">
+          <div className="flex gap-2 justify-around mb-6 border-b pb-3">
               <button
                 onClick={() => {
                   setModalStep("create")
                   setNovoGasto({ id: "", idCategoria: "", categoria: "", valor: "", data: "", nome: "" });
                 }}
-                className={`px-4 py-2 font-semibold rounded-md ${
-                  modalStep === "create" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"
+                className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-colors ${
+                  modalStep === "create" 
+                    ? "bg-[#449E5C] text-white" 
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
                 <FontAwesomeIcon icon={faWrench} /> Criar
@@ -672,8 +676,10 @@ function Home() {
                   setModalStep("edit"); // Define o modal para o passo "Editar"
                   setNovoGasto({ id: "", idCategoria: "", categoria: "", valor: "", data: "", nome: "" }); // Reseta variável
                 }}
-                className={`px-4 py-2 font-semibold rounded-md ${
-                  modalStep === "edit" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"
+                className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-colors ${
+                  modalStep === "edit" 
+                    ? "bg-[#449E5C] text-white" 
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
                 <FontAwesomeIcon icon={faPencilAlt} /> Editar
@@ -717,11 +723,11 @@ function Home() {
                 <button
                   type="button"
                   onClick={handleCloseModalSalario}
-                  className="mr-2 bg-gray-200 text-gray-800 px-4 py-2 rounded-md"
+                  className="mr-2 bg-gray-200 text-gray-800 px-4 py-2 font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-sm"
                 >
                   <FontAwesomeIcon icon={faXmark} /> Cancelar
                 </button>
-                <button type="submit" className="bg-yellow-500 text-white px-4 py-2 rounded-md">
+                <button type="submit" className="bg-yellow-500 text-white px-4 py-2 font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-sm">
                 <FontAwesomeIcon icon={faClipboardList} /> Cadastrar
                 </button>
               </div>
