@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Example from './components/Login';
+import Login from './components/Login';
 import Home from './components/Home';
 import { AuthProvider } from './components/AuthProvider';  // Certifique-se de importar o AuthProvider corretamente
 import ProtectedRoute from './components/ProtectedRoute';
@@ -20,7 +20,7 @@ function App() {
                 <Router>
                     <div className="App">
                         <Routes>
-                            <Route path="/" element={<Example />} />
+                            <Route path="/" element={<Login />} />
                             <Route
                                 path="/home"
                                 element={

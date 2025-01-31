@@ -9,7 +9,7 @@ import apiKey from '../apiKey';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faEnvelope, faKey, faRightToBracket, faUserPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 
-export default function Example() {
+export default function Login() {
     const { login: authLogin } = useAuth(); // Obtém o método de login do contexto
     const [login, setLogin] = useState("");
     const [senha, setSenha] = useState("");
