@@ -1,7 +1,7 @@
 # 📌 Gerenciamento de Gastos - Front-End
 
 ## 📌 Introdução
-Este documento descreve a estrutura do Front-End do sistema de Gerenciamento de Gastos Pessoais. O objetivo é fornecer uma interface intuitiva e responsiva para a gestão de gastos, permitindo que o usuário visualize, registre e categorize suas despesas de maneira eficiente.
+Este documento descreve a estrutura do Front-End do sistema de Gerenciamento de Gastos. O objetivo é fornecer uma interface intuitiva e responsiva para a gestão de gastos, permitindo que o usuário visualize, registre e categorize suas despesas de maneira eficiente.
 
 O Front-End foi desenvolvido em **React.js**, com o uso de **React Router** para navegação, **Tailwind CSS** para estilização e **Chart.js** para gráficos interativos. A comunicação com o Back-End ocorre por meio de chamadas HTTP para a API.
 
@@ -32,7 +32,6 @@ O Front-End foi desenvolvido em **React.js**, com o uso de **React Router** para
 - **React Router** é utilizado para navegação entre as telas:
   - `"/"` → Página de Login (`Login.jsx`)
   - `"/home"` → Página principal (`Home.jsx`)
-  - `"/home2"` → Segunda página (apontando para `Home.jsx`)
 
 ### 📌 **Gestão de Gastos**
 - **`src/components/Home.jsx`** → Página principal da aplicação, onde o usuário pode visualizar seu saldo, categorias e gastos do mês.
@@ -44,7 +43,7 @@ O Front-End foi desenvolvido em **React.js**, com o uso de **React Router** para
 - **`src/components/VirtualizedList.jsx`** → Lista otimizada para exibição de gastos, garantindo performance mesmo com grande volume de dados.
 
 ### 📌 **Outros Componentes**
-- **`src/components/Imagem.jsx`** → Exibe imagens estáticas na interface.
+- **`src/components/Imagem.jsx`** → Exibe imagens animadas na página de login da interface.
 - **`src/api.js`** → Define a URL da API Back-End.
 - **`src/assets/`** → Contém imagens e ícones utilizados na interface.
 
@@ -59,36 +58,49 @@ O Front-End foi desenvolvido em **React.js**, com o uso de **React Router** para
 
 ### ✅ Cadastro e Gestão de Gastos
 - Adicionar, editar e remover categorias de gastos.
-- Registrar novos gastos, vinculando-os a categorias.
-- Atualizar salário mensal do usuário.
+- Registrar editar e remover gastos, vinculando-os a categorias.
+- Atualizar salário mensal do usuário, com base no mês e ano selecionado à esquerda.
 
 ### ✅ Relatórios e Visualização
 - Exibição de **saldo disponível**, comparando **salário** e **despesas**.
-- Exibição de **gráficos interativos** para análise dos gastos mensais.
+- Exibição de **gráficos interativos** para análise dos gastos mensais, com porcentagens e valores ao passar o mouse.
 - Lista virtualizada para exibir **histórico de gastos**, garantindo alta performance.
 
 ---
 
 ## 🖼️ Capturas de Tela
 
-Aqui estão algumas imagens do sistema em funcionamento:
+Aqui estão algumas imagens do sistema em funcionamento, com visualização tanto para **PC** quanto para **Celular**.
+
+---
 
 ### 🔹 **Tela de Login**
-![Tela de Login](/docs/images/LoginPC.jpeg)
+📌 **Versão para PC:**  
+![Tela de Login - PC](/docs/images/LoginPC.jpeg)
+
+📌 **Versão para Celular:**  
+<img src="/docs/images/Login1Celular.jpeg" width="250">  
+<img src="/docs/images/Login2Celular.jpeg" width="250">
+
+---
+
+### 🔹 **Tela de Cadastro**
+📌 **Versão para PC:**  
+![Tela de Cadastro - PC](/docs/images/CriarContaPC.jpeg)
+
+📌 **Versão para Celular:**  
+<img src="/docs/images/CriarContaCelular.jpeg" width="250">
+
+---
 
 ### 🔹 **Tela Principal**
-![Tela Principal](caminho_para_imagem/home.png)
+📌 **Versão para PC:**  
+![Tela Principal - PC](/docs/images/HomePC.jpeg)
 
-### 🔹 **Gráfico de Gastos**
-![Gráfico de Gastos](caminho_para_imagem/grafico_gastos.png)
-
-### 🔹 **Cadastro de Categorias**
-![Cadastro de Categorias](caminho_para_imagem/cadastro_categoria.png)
-
-### 🔹 **Cadastro de Gastos**
-![Cadastro de Gastos](caminho_para_imagem/cadastro_gasto.png)
-
-> **Nota:** Substitua `caminho_para_imagem/...` pelo caminho correto das imagens no repositório ou um link público.
+📌 **Versão para Celular:**  
+<img src="/docs/images/Home1Celular.jpeg" width="250">  
+<img src="/docs/images/Home2Celular.jpeg" width="250">  
+<img src="/docs/images/Home3Celular.jpeg" width="250">
 
 ---
 
