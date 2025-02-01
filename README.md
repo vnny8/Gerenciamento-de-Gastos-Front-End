@@ -119,7 +119,7 @@ git clone https://github.com/vnny8/Gerenciamento-de-Gastos-Front-End.git
 ```plaintext
 npm install
 ```
-3. Inicie o servidor::
+3. Inicie o servidor:
 ```plaintext
 npm start
 ```
