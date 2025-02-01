@@ -29,12 +29,6 @@ function App() {
                                     </ProtectedRoute>
                                 }
                             />
-                            <Route
-                                path="/home2"
-                                element={
-                                        <Home />
-                                }
-                            />
                         </Routes>
                     </div>
                 </Router>
