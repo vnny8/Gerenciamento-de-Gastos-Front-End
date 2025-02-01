@@ -74,7 +74,7 @@ O Front-End foi desenvolvido em **React.js**, com o uso de **React Router** para
 Aqui estão algumas imagens do sistema em funcionamento:
 
 ### 🔹 **Tela de Login**
-![Tela de Login](caminho_para_imagem/login.png)
+![Tela de Login](/docs/images/LoginPC.jpeg)
 
 ### 🔹 **Tela Principal**
 ![Tela Principal](caminho_para_imagem/home.png)
