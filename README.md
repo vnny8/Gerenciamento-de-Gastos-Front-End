@@ -1,5 +1,7 @@
 # 📌 Gerenciamento de Gastos - Front-End
 
+Repositório do Back-End: https://github.com/vnny8/Gerenciamento-de-Gastos-Back-End
+
 ## 📌 Introdução
 Este documento descreve a estrutura do Front-End do sistema de Gerenciamento de Gastos. O objetivo é fornecer uma interface intuitiva e responsiva para a gestão de gastos, permitindo que o usuário visualize, registre e categorize suas despesas de maneira eficiente.
 
